@@ -1,0 +1,1589 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light" />
+  <title>求职投递台账 · 本地版</title>
+  <style>
+    :root {
+      --bg: #f2f5f9;
+      --surface: #ffffff;
+      --surface-soft: #f8fafc;
+      --ink: #18253d;
+      --ink-strong: #10203b;
+      --muted: #738096;
+      --muted-strong: #526078;
+      --line: #e4e9f1;
+      --line-strong: #d5ddea;
+      --navy: #152641;
+      --navy-soft: #203555;
+      --blue: #3f6ee8;
+      --blue-dark: #2e56c5;
+      --blue-soft: #ebf0ff;
+      --teal: #159b8a;
+      --teal-soft: #e6f7f3;
+      --amber: #b97a1c;
+      --amber-soft: #fff4df;
+      --red: #c84c62;
+      --red-soft: #fff0f2;
+      --purple: #8163c9;
+      --purple-soft: #f1edff;
+      --shadow: 0 12px 32px rgba(22, 39, 70, 0.06);
+      --shadow-sm: 0 4px 14px rgba(22, 39, 70, 0.05);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --focus: 0 0 0 3px rgba(63, 110, 232, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { min-width: 320px; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+      outline: none;
+      box-shadow: var(--focus);
+    }
+
+    [hidden] { display: none !important; }
+
+    .app-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 244px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 27px 18px 20px;
+      background: var(--navy);
+      color: #fff;
+      overflow: hidden;
+    }
+
+    .sidebar::after {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      right: -130px;
+      bottom: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      box-shadow: 0 0 0 30px rgba(255, 255, 255, 0.02), 0 0 0 60px rgba(255, 255, 255, 0.02);
+      pointer-events: none;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 0 10px;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 34px;
+      border-radius: 11px;
+      background: #f5c86c;
+      color: var(--navy);
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      box-shadow: 8px 8px 0 rgba(245, 200, 108, 0.12);
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      background: var(--navy);
+      border-radius: 2px;
+    }
+
+    .brand-mark::before { width: 4px; height: 4px; top: 7px; right: 7px; }
+    .brand-mark::after { width: 4px; height: 4px; bottom: 7px; left: 7px; }
+
+    .brand-copy { min-width: 0; }
+    .brand-name { display: block; font-size: 15px; font-weight: 750; letter-spacing: 0.01em; }
+    .brand-subtitle { display: block; margin-top: 1px; color: #95a7c3; font-size: 11px; }
+
+    .nav-label {
+      margin: 47px 11px 10px;
+      color: #7285a4;
+      font-size: 10px;
+      font-weight: 750;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .nav-list { display: grid; gap: 5px; }
+
+    .nav-button {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      width: 100%;
+      min-height: 47px;
+      padding: 0 12px;
+      border: 0;
+      border-radius: 11px;
+      background: transparent;
+      color: #aebbd0;
+      text-align: left;
+      transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+    }
+
+    .nav-button:hover { background: rgba(255, 255, 255, 0.07); color: #fff; }
+    .nav-button:active { transform: translateY(1px); }
+
+    .nav-button.is-active {
+      background: #eef3ff;
+      color: var(--navy);
+      box-shadow: 0 8px 22px rgba(5, 15, 37, 0.15);
+    }
+
+    .nav-button.is-active::before {
+      content: "";
+      position: absolute;
+      left: -18px;
+      width: 3px;
+      height: 22px;
+      border-radius: 0 4px 4px 0;
+      background: #f5c86c;
+    }
+
+    .nav-icon {
+      display: grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      color: currentColor;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .nav-button span:last-child { font-size: 13px; font-weight: 650; }
+
+    .sidebar-footer {
+      position: relative;
+      z-index: 1;
+      margin-top: auto;
+      padding: 13px 12px 2px;
+      color: #8498b7;
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    .privacy-note {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: #c8d4e7;
+      font-weight: 650;
+    }
+
+    .privacy-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #62d9bb;
+      box-shadow: 0 0 0 4px rgba(98, 217, 187, 0.13);
+    }
+
+    .main-content {
+      min-width: 0;
+      padding: 30px clamp(22px, 4vw, 56px) 48px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      max-width: 1320px;
+      margin: 0 auto 28px;
+    }
+
+    .topbar-left { min-width: 0; }
+
+    .eyebrow {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--blue);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      color: var(--ink-strong);
+      font-family: "Aptos Display", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: clamp(24px, 3vw, 31px);
+      font-weight: 760;
+      letter-spacing: -0.045em;
+      line-height: 1.14;
+    }
+
+    .local-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+      margin-top: 2px;
+      padding: 8px 11px;
+      border: 1px solid #dce9e7;
+      border-radius: 999px;
+      background: #f8fffd;
+      color: #37786f;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .local-badge::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 0 0 4px rgba(21, 155, 138, 0.12);
+    }
+
+    .toast-root {
+      position: fixed;
+      z-index: 20;
+      right: 26px;
+      bottom: 24px;
+      display: grid;
+      gap: 9px;
+      width: min(360px, calc(100vw - 32px));
+      pointer-events: none;
+    }
+
+    .toast {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 13px 15px;
+      border: 1px solid #dbece8;
+      border-radius: 12px;
+      background: #fbfffe;
+      box-shadow: 0 13px 32px rgba(20, 56, 65, 0.15);
+      color: #24675e;
+      font-size: 13px;
+      font-weight: 650;
+      animation: toast-in 180ms ease both;
+    }
+
+    .toast.is-error { border-color: #f1d5db; background: #fff9fa; color: var(--red); }
+    .toast-icon { flex: 0 0 auto; font-weight: 800; }
+
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .view { max-width: 1320px; margin: 0 auto; }
+
+    .page-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .page-heading h2 {
+      margin: 0;
+      color: var(--ink-strong);
+      font-size: 19px;
+      font-weight: 740;
+      letter-spacing: -0.025em;
+    }
+
+    .page-heading p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .heading-mark {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding-bottom: 4px;
+    }
+
+    .heading-mark span {
+      width: 22px;
+      height: 5px;
+      border-radius: 99px;
+      background: var(--line-strong);
+    }
+
+    .heading-mark span:nth-child(1) { background: var(--blue); }
+    .heading-mark span:nth-child(2) { background: #83a0ef; }
+    .heading-mark span:nth-child(3) { background: #b1c1f4; }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 13px;
+      margin-bottom: 20px;
+    }
+
+    .metric-card {
+      position: relative;
+      min-height: 112px;
+      padding: 17px 18px 15px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .metric-card::after {
+      content: "";
+      position: absolute;
+      right: 17px;
+      bottom: 17px;
+      width: 29px;
+      height: 29px;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      opacity: 0.12;
+    }
+
+    .metric-card::before {
+      content: "";
+      position: absolute;
+      right: 29px;
+      bottom: 29px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.35;
+    }
+
+    .metric-card.is-blue { color: var(--blue); }
+    .metric-card.is-teal { color: var(--teal); }
+    .metric-card.is-amber { color: var(--amber); }
+    .metric-card.is-red { color: var(--red); }
+
+    .metric-label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .metric-value {
+      display: block;
+      margin-top: 6px;
+      color: var(--ink-strong);
+      font-family: "Aptos Display", "Segoe UI", sans-serif;
+      font-size: 29px;
+      font-weight: 760;
+      letter-spacing: -0.05em;
+      line-height: 1;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.72fr);
+      align-items: start;
+      gap: 20px;
+    }
+
+    .form-card { padding: 24px; }
+
+    .card-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 21px;
+    }
+
+    .card-title-row h3 {
+      margin: 0;
+      color: var(--ink-strong);
+      font-size: 16px;
+      font-weight: 740;
+      letter-spacing: -0.02em;
+    }
+
+    .card-title-row p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+
+    .mini-badge {
+      flex: 0 0 auto;
+      padding: 5px 9px;
+      border-radius: 7px;
+      background: var(--blue-soft);
+      color: var(--blue-dark);
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px 16px;
+    }
+
+    .field { min-width: 0; }
+    .field.is-full { grid-column: 1 / -1; }
+
+    .field-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 7px;
+      color: var(--muted-strong);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .required { color: var(--red); }
+
+    .input, .select, .textarea {
+      width: 100%;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      background: #fff;
+      color: var(--ink-strong);
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .input, .select { height: 42px; padding: 0 12px; }
+    .textarea { display: block; min-height: 130px; padding: 11px 12px; resize: vertical; line-height: 1.65; }
+
+    .url-entry { display: flex; align-items: stretch; gap: 8px; }
+    .url-entry .input { min-width: 0; flex: 1; }
+    .url-search-button { flex: 0 0 auto; white-space: nowrap; }
+
+    .input::placeholder, .textarea::placeholder { color: #adb8c8; }
+    .input:hover, .select:hover, .textarea:hover { border-color: #b6c3d8; }
+    .input:focus, .select:focus, .textarea:focus { border-color: var(--blue); box-shadow: var(--focus); outline: none; }
+
+    .field-hint {
+      display: block;
+      margin-top: 6px;
+      color: #8b98ab;
+      font-size: 11px;
+    }
+
+    .form-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 23px;
+      padding-top: 17px;
+      border-top: 1px solid var(--line);
+    }
+
+    .form-footnote { color: var(--muted); font-size: 11px; }
+
+    .primary-button, .secondary-button, .danger-button, .text-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 38px;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 720;
+      transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+    }
+
+    .primary-button {
+      padding: 0 17px;
+      border: 1px solid var(--blue);
+      background: var(--blue);
+      color: #fff;
+      box-shadow: 0 5px 12px rgba(63, 110, 232, 0.18);
+    }
+
+    .primary-button:hover { border-color: var(--blue-dark); background: var(--blue-dark); }
+    .primary-button:active, .secondary-button:active, .danger-button:active { transform: translateY(1px); }
+
+    .secondary-button {
+      padding: 0 14px;
+      border: 1px solid var(--line-strong);
+      background: #fff;
+      color: var(--muted-strong);
+    }
+
+    .secondary-button:hover { border-color: #b4c0d2; background: var(--surface-soft); color: var(--ink); }
+
+    .guidance-card { padding: 23px 21px; }
+
+    .card-kicker {
+      margin-bottom: 20px;
+      color: var(--blue);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .record-steps {
+      position: relative;
+      display: grid;
+      gap: 20px;
+      margin: 0;
+      padding: 0 0 4px;
+      list-style: none;
+    }
+
+    .record-steps::before {
+      content: "";
+      position: absolute;
+      top: 13px;
+      bottom: 13px;
+      left: 12px;
+      width: 1px;
+      background: #dce3ed;
+    }
+
+    .record-step { position: relative; display: grid; grid-template-columns: 25px 1fr; gap: 10px; align-items: start; }
+
+    .step-number {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      width: 25px;
+      height: 25px;
+      border: 1px solid #c9d5e8;
+      border-radius: 50%;
+      background: #fff;
+      color: var(--blue);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .record-step strong { display: block; color: var(--ink-strong); font-size: 12px; font-weight: 730; }
+    .record-step p { margin: 2px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+
+    .tip-box {
+      display: flex;
+      gap: 9px;
+      margin-top: 22px;
+      padding: 12px;
+      border: 1px solid #eee7cf;
+      border-radius: 11px;
+      background: #fffbf1;
+      color: #84682c;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .tip-icon { flex: 0 0 auto; color: #d09a2e; font-weight: 800; }
+
+    .recent-card { margin-top: 20px; overflow: hidden; }
+
+    .recent-header, .table-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 21px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .recent-header h3, .table-header h3 { margin: 0; color: var(--ink-strong); font-size: 14px; font-weight: 740; }
+    .recent-header span, .table-header span { color: var(--muted); font-size: 11px; }
+
+    .recent-list { display: grid; }
+
+    .recent-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      align-items: center;
+      gap: 15px;
+      padding: 14px 21px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .recent-item:last-child { border-bottom: 0; }
+    .recent-main { min-width: 0; }
+    .recent-company { display: block; overflow: hidden; color: var(--ink-strong); font-size: 12px; font-weight: 720; text-overflow: ellipsis; white-space: nowrap; }
+    .recent-role { display: block; overflow: hidden; margin-top: 2px; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    .recent-time { color: #9aa6b7; font-size: 11px; white-space: nowrap; }
+    .recent-url { display: inline-block; margin-top: 4px; color: var(--blue); font-size: 10px; font-weight: 700; text-decoration: none; }
+    .recent-url:hover { color: var(--blue-dark); text-decoration: underline; }
+
+    .empty-inline {
+      padding: 26px 20px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .status-ladder {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      padding: 0 2px 5px;
+    }
+
+    .status-ladder::before {
+      content: "";
+      position: absolute;
+      top: 7px;
+      left: 4px;
+      right: 4px;
+      height: 2px;
+      background: #dfe5ef;
+    }
+
+    .ladder-item { position: relative; z-index: 1; display: grid; justify-items: center; gap: 6px; width: 45px; }
+    .ladder-dot { width: 10px; height: 10px; border: 2px solid var(--bg); border-radius: 50%; background: #b7c2d2; box-shadow: 0 0 0 1px #c8d2e0; }
+    .ladder-item:first-child .ladder-dot { background: var(--blue); box-shadow: 0 0 0 1px var(--blue); }
+    .ladder-item:nth-child(2) .ladder-dot { background: #7395e8; box-shadow: 0 0 0 1px #7395e8; }
+    .ladder-item:nth-child(3) .ladder-dot { background: #8179d7; box-shadow: 0 0 0 1px #8179d7; }
+    .ladder-item:nth-child(4) .ladder-dot { background: #9966c1; box-shadow: 0 0 0 1px #9966c1; }
+    .ladder-item:nth-child(5) .ladder-dot { background: var(--purple); box-shadow: 0 0 0 1px var(--purple); }
+    .ladder-item:nth-child(6) .ladder-dot { background: var(--amber); box-shadow: 0 0 0 1px var(--amber); }
+    .ladder-item:nth-child(7) .ladder-dot { background: var(--red); box-shadow: 0 0 0 1px var(--red); }
+    .ladder-label { color: #8996a9; font-size: 9px; line-height: 1.15; text-align: center; white-space: nowrap; }
+
+    .search-card { padding: 17px 20px; margin-bottom: 19px; }
+
+    .search-label { display: block; margin-bottom: 7px; color: var(--muted-strong); font-size: 12px; font-weight: 720; }
+
+    .search-box { position: relative; }
+    .search-box::before { content: "⌕"; position: absolute; top: 8px; left: 13px; color: #8c9bb1; font-size: 20px; line-height: 1; }
+    .search-box .input { padding-left: 38px; }
+    .search-helper { margin: 7px 0 0; color: var(--muted); font-size: 11px; }
+
+    .status-results { display: grid; gap: 15px; }
+
+    .company-card { overflow: hidden; }
+
+    .company-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 17px 20px;
+      border-bottom: 1px solid var(--line);
+      background: #fcfdff;
+    }
+
+    .company-card-header h3 { margin: 0; color: var(--ink-strong); font-size: 15px; font-weight: 740; }
+    .company-card-header p { margin: 3px 0 0; color: var(--muted); font-size: 11px; }
+
+    .company-count { padding: 5px 8px; border-radius: 7px; background: var(--blue-soft); color: var(--blue-dark); font-size: 11px; font-weight: 750; white-space: nowrap; }
+
+    .role-card {
+      display: grid;
+      grid-template-columns: minmax(190px, 0.68fr) minmax(0, 1.32fr);
+      gap: 20px;
+      align-items: center;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .role-card:last-child { border-bottom: 0; }
+    .role-summary { min-width: 0; }
+    .role-summary h4 { margin: 0; overflow: hidden; color: var(--ink-strong); font-size: 13px; font-weight: 720; text-overflow: ellipsis; white-space: nowrap; }
+    .role-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 7px; color: var(--muted); font-size: 11px; }
+    .role-meta-divider { color: #bbc4d2; }
+    .role-website { margin-top: 8px; }
+    .website-link { color: var(--blue); font-size: 11px; font-weight: 700; text-decoration: none; }
+    .website-link:hover { color: var(--blue-dark); text-decoration: underline; }
+    .website-missing { color: #a8b2c0; font-size: 11px; }
+    .website-loading { color: var(--purple); font-size: 11px; font-weight: 650; }
+    .website-search-link { margin-left: 7px; color: var(--blue); font-size: 11px; font-weight: 700; text-decoration: none; }
+    .website-search-link:hover { color: var(--blue-dark); text-decoration: underline; }
+
+    .state-actions { min-width: 0; }
+    .state-actions-label { display: block; margin-bottom: 8px; color: #94a0b1; font-size: 10px; font-weight: 650; }
+
+    .state-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .state-button {
+      min-height: 29px;
+      padding: 0 9px;
+      border: 1px solid var(--line-strong);
+      border-radius: 7px;
+      background: #fff;
+      color: var(--muted-strong);
+      font-size: 10px;
+      font-weight: 650;
+      white-space: nowrap;
+      transition: border-color 150ms ease, background 150ms ease, color 150ms ease, transform 150ms ease;
+    }
+
+    .state-button:hover { border-color: #9fb2d3; background: var(--surface-soft); color: var(--ink); }
+    .state-button:active { transform: translateY(1px); }
+    .state-button.is-current { border-color: var(--blue); background: var(--blue); color: #fff; box-shadow: 0 3px 8px rgba(63, 110, 232, 0.18); }
+
+    .summary-stats { margin-bottom: 20px; }
+
+    .filters-card {
+      display: grid;
+      grid-template-columns: minmax(220px, 1.5fr) minmax(150px, 0.72fr) minmax(150px, 0.72fr) auto;
+      align-items: end;
+      gap: 12px;
+      padding: 17px 20px;
+      margin-bottom: 15px;
+    }
+
+    .filter-field { min-width: 0; }
+    .filter-label { display: block; margin-bottom: 6px; color: var(--muted-strong); font-size: 11px; font-weight: 720; }
+    .filter-search { position: relative; }
+    .filter-search::before { content: "⌕"; position: absolute; top: 8px; left: 12px; color: #91a0b4; font-size: 19px; line-height: 1; }
+    .filter-search .input { padding-left: 35px; }
+    .filter-clear { align-self: end; border: 0; background: transparent; color: var(--blue); }
+    .filter-clear:hover { color: var(--blue-dark); text-decoration: underline; }
+
+    .table-card { overflow: hidden; }
+
+    .table-meta { display: flex; align-items: center; gap: 8px; }
+    .table-meta strong { color: var(--ink); font-size: 12px; }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; min-width: 1040px; border-collapse: collapse; }
+    th { padding: 11px 17px; background: #fafbfc; color: #8996a9; font-size: 10px; font-weight: 750; letter-spacing: 0.03em; text-align: left; white-space: nowrap; }
+    td { padding: 14px 17px; border-top: 1px solid var(--line); color: var(--muted-strong); font-size: 12px; vertical-align: middle; }
+    tbody tr { transition: background 150ms ease; }
+    tbody tr:hover { background: #fbfcfe; }
+    tbody tr.is-editing { background: #f7f9ff; }
+
+    .company-cell { display: block; max-width: 190px; overflow: hidden; color: var(--ink-strong); font-weight: 720; text-overflow: ellipsis; white-space: nowrap; }
+    .role-cell { display: block; max-width: 220px; overflow: hidden; color: var(--ink); text-overflow: ellipsis; white-space: nowrap; }
+    .time-cell { color: #7f8da1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .url-cell { display: inline-block; max-width: 180px; overflow: hidden; color: var(--blue); text-overflow: ellipsis; white-space: nowrap; }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 25px;
+      padding: 0 8px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 730;
+      white-space: nowrap;
+    }
+
+    .status-badge::before { content: ""; width: 5px; height: 5px; margin-right: 5px; border-radius: 50%; background: currentColor; }
+    .status-applied { background: var(--blue-soft); color: var(--blue-dark); }
+    .status-test { background: #eef2ff; color: #5c70bf; }
+    .status-interview { background: var(--purple-soft); color: var(--purple); }
+    .status-offer { background: var(--amber-soft); color: var(--amber); }
+    .status-closed { background: var(--red-soft); color: var(--red); }
+
+    .table-actions { display: flex; align-items: center; gap: 6px; }
+    .table-action { min-height: 28px; padding: 0 7px; border: 0; border-radius: 6px; background: transparent; color: var(--blue); font-size: 11px; font-weight: 700; }
+    .table-action:hover { background: var(--blue-soft); }
+    .table-action.is-danger { color: var(--red); }
+    .table-action.is-danger:hover { background: var(--red-soft); }
+
+    .inline-input, .inline-select { width: 100%; height: 34px; padding: 0 8px; border: 1px solid #b9c8df; border-radius: 7px; background: #fff; color: var(--ink); font-size: 12px; }
+    .inline-input:focus, .inline-select:focus { border-color: var(--blue); outline: none; box-shadow: var(--focus); }
+    .inline-actions { display: flex; align-items: center; gap: 4px; }
+
+    .empty-state {
+      display: grid;
+      justify-items: center;
+      padding: 58px 24px;
+      border: 1px dashed #ced8e7;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.55);
+      text-align: center;
+    }
+
+    .empty-state.compact { padding: 38px 24px; border: 0; border-radius: 0; background: transparent; }
+    .empty-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px; background: var(--blue-soft); color: var(--blue); font-size: 22px; font-weight: 500; }
+    .empty-state h3 { margin: 14px 0 4px; color: var(--ink-strong); font-size: 14px; font-weight: 730; }
+    .empty-state p { max-width: 340px; margin: 0; color: var(--muted); font-size: 12px; }
+
+    .muted-note { color: var(--muted); font-size: 11px; }
+
+    @media (max-width: 1050px) {
+      .app-shell { grid-template-columns: 210px minmax(0, 1fr); }
+      .main-content { padding-right: 28px; padding-left: 28px; }
+      .content-grid { grid-template-columns: minmax(0, 1fr); }
+      .guidance-card { display: none; }
+      .role-card { grid-template-columns: minmax(170px, 0.58fr) minmax(0, 1.42fr); }
+      .filters-card { grid-template-columns: minmax(180px, 1.35fr) minmax(145px, 0.8fr) minmax(145px, 0.8fr) auto; }
+    }
+
+    @media (max-width: 760px) {
+      .app-shell { display: block; }
+      .sidebar { position: sticky; z-index: 10; top: 0; height: auto; padding: 12px 14px 10px; }
+      .sidebar::after, .sidebar-footer, .nav-label { display: none; }
+      .brand { padding: 0 4px; }
+      .nav-list { display: flex; gap: 5px; margin-top: 11px; }
+      .nav-button { flex: 1; justify-content: center; min-height: 38px; padding: 0 8px; }
+      .nav-button.is-active::before { left: 10px; bottom: -10px; width: calc(100% - 20px); height: 3px; border-radius: 3px 3px 0 0; }
+      .nav-button span:last-child { font-size: 12px; }
+      .main-content { padding: 24px 16px 36px; }
+      .topbar { margin-bottom: 23px; }
+      .local-badge { padding: 7px 9px; font-size: 11px; }
+      .topbar h1 { font-size: 25px; }
+      .page-heading { align-items: flex-start; margin-bottom: 16px; }
+      .heading-mark { display: none; }
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+      .metric-card { min-height: 92px; padding: 14px; }
+      .metric-value { font-size: 25px; }
+      .form-card { padding: 18px 16px; }
+      .field-grid { grid-template-columns: 1fr; gap: 16px; }
+      .field.is-full { grid-column: auto; }
+      .url-entry { align-items: stretch; flex-direction: column; }
+      .url-search-button { width: 100%; }
+      .form-footer { align-items: flex-start; flex-direction: column; }
+      .primary-button { width: 100%; }
+      .recent-header, .table-header { padding: 15px 16px; }
+      .recent-item { grid-template-columns: minmax(0, 1fr) auto; gap: 9px; padding: 13px 16px; }
+      .recent-item .status-badge { grid-column: 2; grid-row: 1 / span 2; }
+      .recent-time { grid-column: 1; }
+      .search-card { padding: 15px 16px; margin-bottom: 14px; }
+      .role-card { grid-template-columns: 1fr; gap: 14px; padding: 16px; }
+      .state-actions-label { margin-bottom: 7px; }
+      .state-buttons { gap: 5px; }
+      .state-button { flex: 1 0 auto; min-height: 30px; }
+      .filters-card { grid-template-columns: 1fr; align-items: stretch; padding: 15px 16px; }
+      .filter-clear { justify-self: start; padding: 0; }
+      .table-header { align-items: flex-start; }
+      .table-meta { align-items: flex-end; flex-direction: column; gap: 1px; }
+      .toast-root { right: 16px; bottom: 16px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="主导航">
+      <div class="brand" aria-label="求职投递台账">
+        <span class="brand-mark" aria-hidden="true">C</span>
+        <span class="brand-copy">
+          <span class="brand-name">求职投递台账</span>
+          <span class="brand-subtitle">Career application desk</span>
+        </span>
+      </div>
+
+      <div class="nav-label">Workspace</div>
+      <nav class="nav-list">
+        <button class="nav-button is-active" type="button" data-view="stats" aria-current="page">
+          <span class="nav-icon" aria-hidden="true">＋</span><span>统计</span>
+        </button>
+        <button class="nav-button" type="button" data-view="status">
+          <span class="nav-icon" aria-hidden="true">↻</span><span>状态修改</span>
+        </button>
+        <button class="nav-button" type="button" data-view="summary">
+          <span class="nav-icon" aria-hidden="true">▤</span><span>汇总</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="privacy-note"><span class="privacy-dot" aria-hidden="true"></span>数据仅保存在本机浏览器</div>
+        <div>无需账号 · 无需联网 · V1</div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-left">
+          <span class="eyebrow" id="page-eyebrow">APPLICATION DESK / 01</span>
+          <h1 id="page-title">记录一次新的投递</h1>
+        </div>
+        <div class="local-badge">仅本地保存</div>
+      </header>
+
+      <div class="toast-root" id="toast-root" aria-live="polite" aria-atomic="true"></div>
+
+      <section class="view" id="view-stats">
+        <div class="page-heading">
+          <div>
+            <h2>新增投递</h2>
+            <p>一次填写，多个岗位会自动拆成独立记录。</p>
+          </div>
+          <div class="heading-mark" aria-label="记录工作流"><span></span><span></span><span></span></div>
+        </div>
+
+        <div class="metric-grid" aria-label="投递概览">
+          <article class="metric-card is-blue">
+            <span class="metric-label">总投递数</span>
+            <strong class="metric-value" id="stats-total">0</strong>
+          </article>
+          <article class="metric-card is-teal">
+            <span class="metric-label">进行中</span>
+            <strong class="metric-value" id="stats-progress">0</strong>
+          </article>
+          <article class="metric-card is-amber">
+            <span class="metric-label">等待 Offer</span>
+            <strong class="metric-value" id="stats-offer">0</strong>
+          </article>
+          <article class="metric-card is-red">
+            <span class="metric-label">已结束</span>
+            <strong class="metric-value" id="stats-ended">0</strong>
+          </article>
+        </div>
+
+        <div class="content-grid">
+          <form class="card form-card" id="application-form" novalidate>
+            <div class="card-title-row">
+              <div>
+                <h3>填写投递信息</h3>
+                <p>保存时自动记录当前时间。</p>
+              </div>
+              <span class="mini-badge">NEW ENTRY</span>
+            </div>
+
+            <div class="field-grid">
+              <div class="field">
+                <label class="field-label" for="company-name">公司名称 <span class="required">*</span></label>
+                <input class="input" id="company-name" name="company" type="text" placeholder="例如：小米汽车" autocomplete="organization" required />
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="login-method">登录方式 <span class="required">*</span></label>
+                <select class="select" id="login-method" name="login" required>
+                  <option value="" selected disabled>请选择登录方式</option>
+                  <option value="手机号">手机号</option>
+                  <option value="微信">微信</option>
+                  <option value="邮箱">邮箱</option>
+                  <option value="其他">其他</option>
+                </select>
+              </div>
+
+              <div class="field is-full">
+                <label class="field-label" for="job-titles">岗位名称 <span class="required">*</span></label>
+                <textarea class="textarea" id="job-titles" name="jobs" rows="5" placeholder="机械架构 SIE 工程师&#10;产品经理&#10;项目管理" required></textarea>
+                <span class="field-hint">每行一个岗位，保存后会生成一条独立记录。</span>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="initial-status">当前状态 <span class="required">*</span></label>
+                <select class="select" id="initial-status" name="status" required>
+                  <option value="" selected disabled>请选择当前状态</option>
+                  <option value="已投递">已投递</option>
+                  <option value="笔试完">笔试完</option>
+                  <option value="一面面试完">一面面试完</option>
+                  <option value="二面面试完">二面面试完</option>
+                  <option value="三面面试完">三面面试完</option>
+                  <option value="等待Offer">等待Offer</option>
+                  <option value="已结束">已结束</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-footer">
+              <span class="form-footnote">* 标记字段均为必填项</span>
+              <button class="primary-button" type="submit"><span aria-hidden="true">＋</span>保存投递记录</button>
+            </div>
+          </form>
+
+          <aside class="card guidance-card" aria-label="记录流程说明">
+            <div class="card-kicker">Record flow</div>
+            <ol class="record-steps">
+              <li class="record-step"><span class="step-number">01</span><div><strong>写下公司和岗位</strong><p>一家公司可以同时记录多个岗位。</p></div></li>
+              <li class="record-step"><span class="step-number">02</span><div><strong>选择入口和状态</strong><p>登录方式和当前进度都可以日后修改。</p></div></li>
+              <li class="record-step"><span class="step-number">03</span><div><strong>保存，开始跟踪</strong><p>投递时间由系统在保存瞬间自动记录。</p></div></li>
+            </ol>
+            <div class="tip-box"><span class="tip-icon">↳</span><span>建议每次投递后立即记录，避免多个岗位混在记忆里。</span></div>
+          </aside>
+        </div>
+
+        <section class="card recent-card" aria-labelledby="recent-title">
+          <div class="recent-header"><h3 id="recent-title">最近记录</h3><span id="recent-count">暂无记录</span></div>
+          <div class="recent-list" id="recent-list"></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-status" hidden>
+        <div class="page-heading">
+          <div>
+            <h2>按公司更新状态</h2>
+            <p>输入公司名称，找到岗位后直接点选最新进度。</p>
+          </div>
+          <div class="status-ladder" aria-label="七个投递状态">
+            <span class="ladder-item"><i class="ladder-dot"></i><em class="ladder-label">已投递</em></span>
+            <span class="ladder-item"><i class="ladder-dot"></i><em class="ladder-label">笔试</em></span>
+            <span class="ladder-item"><i class="ladder-dot"></i><em class="ladder-label">一面</em></span>
+            <span class="ladder-item"><i class="ladder-dot"></i><em class="ladder-label">二面</em></span>
+            <span class="ladder-item"><i class="ladder-dot"></i><em class="ladder-label">三面</em></span>
+            <span class="ladder-item"><i class="ladder-dot"></i><em class="ladder-label">Offer</em></span>
+            <span class="ladder-item"><i class="ladder-dot"></i><em class="ladder-label">结束</em></span>
+          </div>
+        </div>
+
+        <div class="card search-card">
+          <label class="search-label" for="status-company-search">公司名称</label>
+          <div class="search-box"><input class="input" id="status-company-search" type="search" placeholder="输入公司名称，例如：小米" autocomplete="off" /></div>
+          <p class="search-helper">支持部分匹配，例如输入“小米”可以找到“小米汽车”。</p>
+        </div>
+
+        <div class="status-results" id="status-results"></div>
+      </section>
+
+      <section class="view" id="view-summary" hidden>
+        <div class="page-heading">
+          <div>
+            <h2>投递汇总</h2>
+            <p>所有记录一行一个岗位，发现录错时可以直接修正。</p>
+          </div>
+          <div class="heading-mark" aria-label="汇总视图"><span></span><span></span><span></span></div>
+        </div>
+
+        <div class="metric-grid summary-stats" aria-label="投递统计">
+          <article class="metric-card is-blue"><span class="metric-label">总投递数</span><strong class="metric-value" id="summary-total">0</strong></article>
+          <article class="metric-card is-teal"><span class="metric-label">进行中</span><strong class="metric-value" id="summary-progress">0</strong></article>
+          <article class="metric-card is-amber"><span class="metric-label">等待 Offer</span><strong class="metric-value" id="summary-offer">0</strong></article>
+          <article class="metric-card is-red"><span class="metric-label">已结束</span><strong class="metric-value" id="summary-ended">0</strong></article>
+        </div>
+
+        <div class="card filters-card" aria-label="筛选条件">
+          <div class="filter-field">
+            <label class="filter-label" for="summary-search">关键词</label>
+            <div class="filter-search"><input class="input" id="summary-search" type="search" placeholder="搜索公司或岗位名称" autocomplete="off" /></div>
+          </div>
+          <div class="filter-field">
+            <label class="filter-label" for="summary-status-filter">状态</label>
+            <select class="select" id="summary-status-filter">
+              <option value="">全部状态</option>
+              <option value="已投递">已投递</option>
+              <option value="笔试完">笔试完</option>
+              <option value="一面面试完">一面面试完</option>
+              <option value="二面面试完">二面面试完</option>
+              <option value="三面面试完">三面面试完</option>
+              <option value="等待Offer">等待Offer</option>
+              <option value="已结束">已结束</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label class="filter-label" for="summary-login-filter">登录方式</label>
+            <select class="select" id="summary-login-filter">
+              <option value="">全部方式</option>
+              <option value="手机号">手机号</option>
+              <option value="微信">微信</option>
+              <option value="邮箱">邮箱</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+          <button class="text-button filter-clear" id="clear-filters" type="button">清除筛选</button>
+        </div>
+
+        <section class="card table-card" aria-labelledby="table-title">
+          <div class="table-header">
+            <h3 id="table-title">全部投递记录</h3>
+            <div class="table-meta"><strong id="summary-count">0 条记录</strong><span id="summary-filter-note">当前为全部记录</span></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th scope="col">公司名称</th><th scope="col">岗位名称</th><th scope="col">公司 / 招聘网址</th><th scope="col">投递时间</th><th scope="col">登录方式</th><th scope="col">当前状态</th><th scope="col">操作</th></tr>
+              </thead>
+              <tbody id="summary-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const STORAGE_KEY = "local-career-application-ledger-v1";
+      const WEBSITE_CACHE_KEY = "local-career-application-website-cache-v1";
+      const WEBSITE_CACHE_TTL = 24 * 60 * 60 * 1000;
+      const STATUS_OPTIONS = ["已投递", "笔试完", "一面面试完", "二面面试完", "三面面试完", "等待Offer", "已结束"];
+      const LOGIN_OPTIONS = ["手机号", "微信", "邮箱", "其他"];
+      const PAGE_META = {
+        stats: { eyebrow: "APPLICATION DESK / 01", title: "记录一次新的投递" },
+        status: { eyebrow: "APPLICATION DESK / 02", title: "更新岗位进度" },
+        summary: { eyebrow: "APPLICATION DESK / 03", title: "查看全部记录" }
+      };
+
+      let records = loadRecords();
+      let websiteCache = loadWebsiteCache();
+      const websiteRequests = new Map();
+      let currentView = "stats";
+      let editingId = null;
+      let toastTimer = null;
+
+      const $ = (selector, root = document) => root.querySelector(selector);
+      const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+
+      function makeId() {
+        if (window.crypto && typeof window.crypto.randomUUID === "function") return window.crypto.randomUUID();
+        return "rec-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 9);
+      }
+
+      function loadRecords() {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+          if (!Array.isArray(parsed)) return [];
+          return parsed.filter((item) => item && typeof item === "object" && item.company && item.title && STATUS_OPTIONS.includes(item.status) && LOGIN_OPTIONS.includes(item.loginMethod)).map((item) => ({
+            id: String(item.id || makeId()),
+            company: String(item.company).trim(),
+            title: String(item.title).trim(),
+            website: isValidWebsite(item.website) ? normalizeWebsite(item.website) : "",
+            loginMethod: String(item.loginMethod),
+            status: String(item.status),
+            appliedAt: Number(item.appliedAt) || Date.now()
+          }));
+        } catch (error) {
+          return [];
+        }
+      }
+
+      function companyKey(company) {
+        return String(company || "").trim().toLocaleLowerCase();
+      }
+
+      function loadWebsiteCache() {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(WEBSITE_CACHE_KEY) || "{}");
+          if (!parsed || typeof parsed !== "object") return {};
+          return Object.fromEntries(Object.entries(parsed).filter(([, item]) => item && isValidWebsite(item.url) && Number(item.checkedAt) > 0));
+        } catch (error) {
+          return {};
+        }
+      }
+
+      function saveWebsiteCache() {
+        localStorage.setItem(WEBSITE_CACHE_KEY, JSON.stringify(websiteCache));
+      }
+
+      function persist() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+        renderAll();
+      }
+
+      function escapeHTML(value) {
+        return String(value).replace(/[&<>'"]/g, (character) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
+        })[character]);
+      }
+
+      function normalizeWebsite(value) {
+        const trimmed = String(value || "").trim();
+        if (!trimmed) return "";
+        return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+      }
+
+      function isValidWebsite(value) {
+        const normalized = normalizeWebsite(value);
+        if (!normalized) return false;
+        try {
+          const parsed = new URL(normalized);
+          return (parsed.protocol === "http:" || parsed.protocol === "https:") && Boolean(parsed.hostname);
+        } catch (error) {
+          return false;
+        }
+      }
+
+      function websiteLink(value, label = "打开网址") {
+        const website = isValidWebsite(value) ? normalizeWebsite(value) : "";
+        if (!website) return `<span class="website-missing">未记录网址</span>`;
+        return `<a class="website-link" href="${escapeHTML(website)}" target="_blank" rel="noopener noreferrer" title="${escapeHTML(website)}">${escapeHTML(label)} ↗</a>`;
+      }
+
+      function websiteDomain(value) {
+        try { return new URL(normalizeWebsite(value)).hostname.replace(/^www\./i, ""); }
+        catch (error) { return "打开网址"; }
+      }
+
+      function websiteSearchLink(company) {
+        const query = encodeURIComponent(`${company} 招聘 官网`);
+        return `<a class="website-search-link" href="https://www.baidu.com/s?wd=${query}" target="_blank" rel="noopener noreferrer">网页搜索 ↗</a>`;
+      }
+
+      function cachedWebsite(company, storedWebsite = "") {
+        if (isValidWebsite(storedWebsite)) return normalizeWebsite(storedWebsite);
+        const cached = websiteCache[companyKey(company)];
+        if (!cached || Date.now() - Number(cached.checkedAt) > WEBSITE_CACHE_TTL) return "";
+        return isValidWebsite(cached.url) ? normalizeWebsite(cached.url) : "";
+      }
+
+      function websiteDisplay(company, storedWebsite = "") {
+        const website = cachedWebsite(company, storedWebsite);
+        if (website) return websiteLink(website, websiteDomain(website));
+        if (websiteRequests.has(companyKey(company))) return `<span class="website-loading">正在实时查询…</span>`;
+        return `<span class="website-missing">暂未找到官网</span>${websiteSearchLink(company)}`;
+      }
+
+      async function queryOfficialWebsite(company) {
+        const searchParams = new URLSearchParams({
+          action: "wbsearchentities",
+          search: company,
+          language: "zh",
+          uselang: "zh",
+          format: "json",
+          origin: "*"
+        });
+        const searchResponse = await fetch(`https://www.wikidata.org/w/api.php?${searchParams.toString()}`);
+        if (!searchResponse.ok) throw new Error("website search unavailable");
+        const searchData = await searchResponse.json();
+        const candidates = Array.isArray(searchData.search) ? searchData.search.slice(0, 5) : [];
+
+        for (const candidate of candidates) {
+          if (!candidate || !candidate.id) continue;
+          const entityParams = new URLSearchParams({ action: "wbgetentities", ids: candidate.id, props: "claims", format: "json", origin: "*" });
+          const entityResponse = await fetch(`https://www.wikidata.org/w/api.php?${entityParams.toString()}`);
+          if (!entityResponse.ok) continue;
+          const entityData = await entityResponse.json();
+          const claims = entityData.entities?.[candidate.id]?.claims?.P856 || [];
+          for (const claim of claims) {
+            const value = claim?.mainsnak?.datavalue?.value;
+            if (isValidWebsite(value)) return normalizeWebsite(value);
+          }
+        }
+        return "";
+      }
+
+      function startWebsiteLookup(company, force = false) {
+        const key = companyKey(company);
+        if (!key || websiteRequests.has(key)) return;
+        if (!force && cachedWebsite(company)) return;
+        const request = queryOfficialWebsite(company)
+          .then((website) => {
+            if (website) {
+              websiteCache[key] = { url: website, checkedAt: Date.now() };
+              saveWebsiteCache();
+            }
+            return website;
+          })
+          .catch(() => "")
+          .finally(() => {
+            websiteRequests.delete(key);
+            if (currentView === "status") renderStatusResults();
+            if (currentView === "summary" && !editingId) renderSummary();
+          });
+        websiteRequests.set(key, request);
+      }
+
+      function scheduleWebsiteLookups(companies) {
+        Array.from(new Set(companies.map((company) => String(company || "").trim()).filter(Boolean))).forEach((company) => startWebsiteLookup(company));
+      }
+
+      function formatDate(timestamp) {
+        const date = new Date(timestamp);
+        if (Number.isNaN(date.getTime())) return "—";
+        return new Intl.DateTimeFormat("zh-CN", {
+          year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false
+        }).format(date).replace(/\//g, "-");
+      }
+
+      function formatShortDate(timestamp) {
+        const date = new Date(timestamp);
+        if (Number.isNaN(date.getTime())) return "—";
+        return new Intl.DateTimeFormat("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).format(date).replace(/\//g, "-");
+      }
+
+      function statusClass(status) {
+        if (status === "已投递") return "status-applied";
+        if (status === "笔试完") return "status-test";
+        if (status === "等待Offer") return "status-offer";
+        if (status === "已结束") return "status-closed";
+        return "status-interview";
+      }
+
+      function statusBadge(status) {
+        return `<span class="status-badge ${statusClass(status)}">${escapeHTML(status)}</span>`;
+      }
+
+      function getMetrics() {
+        const total = records.length;
+        const offer = records.filter((record) => record.status === "等待Offer").length;
+        const ended = records.filter((record) => record.status === "已结束").length;
+        const progress = total - offer - ended;
+        return { total, progress, offer, ended };
+      }
+
+      function showToast(message, type = "success") {
+        const root = $("#toast-root");
+        root.innerHTML = `<div class="toast ${type === "error" ? "is-error" : ""}"><span class="toast-icon">${type === "error" ? "!" : "✓"}</span><span>${escapeHTML(message)}</span></div>`;
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(() => { root.innerHTML = ""; }, 3000);
+      }
+
+      function updateMetricIds(prefix, metrics) {
+        $(`#${prefix}-total`).textContent = metrics.total;
+        $(`#${prefix}-progress`).textContent = metrics.progress;
+        $(`#${prefix}-offer`).textContent = metrics.offer;
+        $(`#${prefix}-ended`).textContent = metrics.ended;
+      }
+
+      function renderMetrics() {
+        const metrics = getMetrics();
+        updateMetricIds("stats", metrics);
+        updateMetricIds("summary", metrics);
+      }
+
+      function renderRecent() {
+        const root = $("#recent-list");
+        const count = $("#recent-count");
+        count.textContent = records.length ? `共 ${records.length} 条` : "暂无记录";
+        if (!records.length) {
+          root.innerHTML = `<div class="empty-inline">还没有投递记录，从上方填写第一条吧。</div>`;
+          return;
+        }
+        root.innerHTML = records.slice(0, 5).map((record) => `
+          <div class="recent-item">
+            <div class="recent-main"><span class="recent-company">${escapeHTML(record.company)}</span><span class="recent-role">${escapeHTML(record.title)}</span></div>
+            <span class="recent-time">${formatShortDate(record.appliedAt)}</span>
+            ${statusBadge(record.status)}
+          </div>
+        `).join("");
+      }
+
+      function renderStatusResults() {
+        const root = $("#status-results");
+        const query = $("#status-company-search").value.trim().toLowerCase();
+        if (!query) {
+          root.innerHTML = `<div class="empty-state"><div class="empty-icon">⌕</div><h3>先搜索一家公司的名称</h3><p>输入公司名称或其中一部分，下面会列出这家公司的所有岗位。</p></div>`;
+          return;
+        }
+
+        const matched = records.filter((record) => record.company.toLowerCase().includes(query));
+        if (!matched.length) {
+          root.innerHTML = `<div class="empty-state"><div class="empty-icon">—</div><h3>没有找到相关投递记录</h3><p>没有找到“${escapeHTML($("#status-company-search").value.trim())}”相关的投递记录，可以换个关键词试试。</p></div>`;
+          return;
+        }
+
+        const groups = new Map();
+        matched.forEach((record) => {
+          if (!groups.has(record.company)) groups.set(record.company, []);
+          groups.get(record.company).push(record);
+        });
+        if (currentView === "status") scheduleWebsiteLookups(matched.map((record) => record.company));
+
+        root.innerHTML = Array.from(groups.entries()).map(([company, companyRecords]) => `
+          <article class="card company-card">
+            <div class="company-card-header"><div><h3>${escapeHTML(company)}</h3><p>共记录 ${companyRecords.length} 个岗位</p></div><span class="company-count">${companyRecords.length} 个岗位</span></div>
+            ${companyRecords.map((record) => `
+              <div class="role-card">
+                <div class="role-summary">
+                  <h4 title="${escapeHTML(record.title)}">${escapeHTML(record.title)}</h4>
+                  <div class="role-meta"><span>投递于 ${formatDate(record.appliedAt)}</span><span class="role-meta-divider">·</span>${statusBadge(record.status)}</div>
+                  <div class="role-website">${websiteDisplay(record.company, record.website)}</div>
+                </div>
+                <div class="state-actions">
+                  <span class="state-actions-label">点击更新当前状态</span>
+                  <div class="state-buttons">
+                    ${STATUS_OPTIONS.map((status) => `<button class="state-button ${record.status === status ? "is-current" : ""}" type="button" data-action="update-status" data-id="${escapeHTML(record.id)}" data-status="${escapeHTML(status)}" aria-pressed="${record.status === status}">${escapeHTML(status)}</button>`).join("")}
+                  </div>
+                </div>
+              </div>
+            `).join("")}
+          </article>
+        `).join("");
+      }
+
+      function getFilteredRecords() {
+        const query = $("#summary-search").value.trim().toLowerCase();
+        const status = $("#summary-status-filter").value;
+        const login = $("#summary-login-filter").value;
+        return records.filter((record) => {
+          const matchesQuery = !query || record.company.toLowerCase().includes(query) || record.title.toLowerCase().includes(query) || record.website.toLowerCase().includes(query);
+          const matchesStatus = !status || record.status === status;
+          const matchesLogin = !login || record.loginMethod === login;
+          return matchesQuery && matchesStatus && matchesLogin;
+        });
+      }
+
+      function inlineSelectOptions(options, selected) {
+        return options.map((option) => `<option value="${escapeHTML(option)}" ${option === selected ? "selected" : ""}>${escapeHTML(option)}</option>`).join("");
+      }
+
+      function renderSummary() {
+        const filtered = getFilteredRecords();
+        const body = $("#summary-body");
+        $("#summary-count").textContent = `${filtered.length} 条记录`;
+        const hasFilters = $("#summary-search").value.trim() || $("#summary-status-filter").value || $("#summary-login-filter").value;
+        $("#summary-filter-note").textContent = hasFilters ? `筛选自 ${records.length} 条记录` : "当前为全部记录";
+        if (currentView === "summary" && !editingId) scheduleWebsiteLookups(filtered.map((record) => record.company));
+
+        if (!filtered.length) {
+          body.innerHTML = `<tr><td colspan="7"><div class="empty-state compact"><div class="empty-icon">⌁</div><h3>${records.length ? "没有符合条件的记录" : "还没有投递记录"}</h3><p>${records.length ? "试试清除筛选条件，或换一个关键词。" : "先去统计页添加一条投递记录吧。"}</p></div></td></tr>`;
+          return;
+        }
+
+        body.innerHTML = filtered.map((record) => {
+          if (record.id === editingId) {
+            return `<tr class="is-editing" data-id="${escapeHTML(record.id)}">
+              <td><input class="inline-input" data-field="company" value="${escapeHTML(record.company)}" aria-label="公司名称" /></td>
+              <td><input class="inline-input" data-field="title" value="${escapeHTML(record.title)}" aria-label="岗位名称" /></td>
+              <td>${websiteDisplay(record.company, record.website)}</td>
+              <td class="time-cell">${formatDate(record.appliedAt)}</td>
+              <td><select class="inline-select" data-field="loginMethod" aria-label="登录方式">${inlineSelectOptions(LOGIN_OPTIONS, record.loginMethod)}</select></td>
+              <td><select class="inline-select" data-field="status" aria-label="当前状态">${inlineSelectOptions(STATUS_OPTIONS, record.status)}</select></td>
+              <td><div class="inline-actions"><button class="table-action" type="button" data-action="save-edit" data-id="${escapeHTML(record.id)}">保存</button><button class="table-action" type="button" data-action="cancel-edit">取消</button></div></td>
+            </tr>`;
+          }
+          return `<tr data-id="${escapeHTML(record.id)}">
+            <td><span class="company-cell" title="${escapeHTML(record.company)}">${escapeHTML(record.company)}</span></td>
+            <td><span class="role-cell" title="${escapeHTML(record.title)}">${escapeHTML(record.title)}</span></td>
+            <td>${websiteDisplay(record.company, record.website)}</td>
+            <td class="time-cell">${formatDate(record.appliedAt)}</td>
+            <td>${escapeHTML(record.loginMethod)}</td>
+            <td>${statusBadge(record.status)}</td>
+            <td><div class="table-actions"><button class="table-action" type="button" data-action="edit" data-id="${escapeHTML(record.id)}">编辑</button><button class="table-action is-danger" type="button" data-action="delete" data-id="${escapeHTML(record.id)}">删除</button></div></td>
+          </tr>`;
+        }).join("");
+      }
+
+      function renderAll() {
+        renderMetrics();
+        renderRecent();
+        renderStatusResults();
+        renderSummary();
+      }
+
+      function switchView(view) {
+        if (!PAGE_META[view]) return;
+        currentView = view;
+        $$(".view").forEach((section) => { section.hidden = section.id !== `view-${view}`; });
+        $$(".nav-button").forEach((button) => {
+          const active = button.dataset.view === view;
+          button.classList.toggle("is-active", active);
+          if (active) button.setAttribute("aria-current", "page");
+          else button.removeAttribute("aria-current");
+        });
+        $("#page-eyebrow").textContent = PAGE_META[view].eyebrow;
+        $("#page-title").textContent = PAGE_META[view].title;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        if (view === "summary") renderSummary();
+        if (view === "status") renderStatusResults();
+      }
+
+      function saveNewRecords(event) {
+        event.preventDefault();
+        const companyInput = $("#company-name");
+        const jobsInput = $("#job-titles");
+        const loginInput = $("#login-method");
+        const statusInput = $("#initial-status");
+        const company = companyInput.value.trim();
+        const jobs = jobsInput.value.split(/\r?\n/).map((job) => job.trim()).filter(Boolean);
+        const loginMethod = loginInput.value;
+        const status = statusInput.value;
+
+        [companyInput, jobsInput, loginInput, statusInput].forEach((input) => input.removeAttribute("aria-invalid"));
+        if (!company) { companyInput.setAttribute("aria-invalid", "true"); companyInput.focus(); showToast("请填写公司名称", "error"); return; }
+        if (!jobs.length) { jobsInput.setAttribute("aria-invalid", "true"); jobsInput.focus(); showToast("请至少填写一个岗位名称", "error"); return; }
+        if (!LOGIN_OPTIONS.includes(loginMethod)) { loginInput.setAttribute("aria-invalid", "true"); loginInput.focus(); showToast("请选择登录方式", "error"); return; }
+        if (!STATUS_OPTIONS.includes(status)) { statusInput.setAttribute("aria-invalid", "true"); statusInput.focus(); showToast("请选择当前状态", "error"); return; }
+
+        const appliedAt = Date.now();
+        const newRecords = jobs.map((title) => ({ id: makeId(), company, title, website: "", loginMethod, status, appliedAt }));
+        records = [...newRecords, ...records];
+        persist();
+        event.target.reset();
+        showToast(`已保存 ${newRecords.length} 个岗位的投递记录`);
+      }
+
+      function updateStatus(id, status) {
+        const record = records.find((item) => item.id === id);
+        if (!record || !STATUS_OPTIONS.includes(status)) return;
+        record.status = status;
+        persist();
+        showToast(`已更新「${record.title}」为「${status}」`);
+      }
+
+      function saveInlineEdit(id, row) {
+        const record = records.find((item) => item.id === id);
+        if (!record) return;
+        const company = row.querySelector('[data-field="company"]').value.trim();
+        const title = row.querySelector('[data-field="title"]').value.trim();
+        const loginMethod = row.querySelector('[data-field="loginMethod"]').value;
+        const status = row.querySelector('[data-field="status"]').value;
+        if (!company || !title) { showToast("公司名称和岗位名称不能为空", "error"); return; }
+        if (!LOGIN_OPTIONS.includes(loginMethod) || !STATUS_OPTIONS.includes(status)) { showToast("请检查登录方式和当前状态", "error"); return; }
+        record.company = company;
+        record.title = title;
+        record.loginMethod = loginMethod;
+        record.status = status;
+        editingId = null;
+        persist();
+        showToast("已保存修改");
+      }
+
+      function handleAction(event) {
+        const target = event.target.closest("[data-action]");
+        if (!target) return;
+        const action = target.dataset.action;
+        const id = target.dataset.id;
+
+        if (action === "update-status") { updateStatus(id, target.dataset.status); return; }
+        if (action === "edit") { editingId = id; renderSummary(); const input = $("#summary-body tr.is-editing .inline-input"); if (input) input.focus(); return; }
+        if (action === "cancel-edit") { editingId = null; renderSummary(); return; }
+        if (action === "save-edit") { saveInlineEdit(id, target.closest("tr")); return; }
+        if (action === "delete") {
+          const record = records.find((item) => item.id === id);
+          if (!record) return;
+          const confirmed = window.confirm(`确定删除“${record.company} - ${record.title}”这条投递记录吗？此操作无法撤销。`);
+          if (!confirmed) return;
+          records = records.filter((item) => item.id !== id);
+          editingId = null;
+          persist();
+          showToast("已删除这条投递记录");
+        }
+      }
+
+      $$(".nav-button").forEach((button) => button.addEventListener("click", () => switchView(button.dataset.view)));
+      $("#application-form").addEventListener("submit", saveNewRecords);
+      $("#status-company-search").addEventListener("input", renderStatusResults);
+      $("#summary-search").addEventListener("input", renderSummary);
+      $("#summary-status-filter").addEventListener("change", renderSummary);
+      $("#summary-login-filter").addEventListener("change", renderSummary);
+      $("#clear-filters").addEventListener("click", () => {
+        $("#summary-search").value = "";
+        $("#summary-status-filter").value = "";
+        $("#summary-login-filter").value = "";
+        renderSummary();
+      });
+      document.addEventListener("click", handleAction);
+
+      renderAll();
+    })();
+  </script>
+</body>
+</html>
