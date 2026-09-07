@@ -726,11 +726,12 @@
     .role-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 7px; color: var(--muted); font-size: 11px; }
     .role-meta-divider { color: #bbc4d2; }
     .role-website { margin-top: 8px; }
-    .website-link { color: var(--blue); font-size: 11px; font-weight: 700; text-decoration: none; }
+    .website-link { display: inline-block; max-width: 220px; overflow: hidden; color: var(--blue); font-size: 11px; font-weight: 700; text-decoration: none; text-overflow: ellipsis; vertical-align: middle; white-space: nowrap; }
     .website-link:hover { color: var(--blue-dark); text-decoration: underline; }
     .website-missing { color: #a8b2c0; font-size: 11px; }
-    .website-search-link { margin-left: 7px; color: var(--blue); font-size: 11px; font-weight: 700; text-decoration: none; }
-    .website-search-link:hover { color: var(--blue-dark); text-decoration: underline; }
+    .website-loading { color: var(--purple); font-size: 11px; font-weight: 650; }
+    .website-retry { margin-left: 7px; padding: 0; border: 0; background: transparent; color: var(--blue); font-size: 11px; font-weight: 700; }
+    .website-retry:hover { color: var(--blue-dark); text-decoration: underline; }
 
     .state-actions { min-width: 0; }
     .state-actions-label { display: block; margin-bottom: 8px; color: #94a0b1; font-size: 10px; font-weight: 650; }
@@ -915,7 +916,7 @@
 
       <div class="sidebar-footer">
         <div class="privacy-note"><span class="privacy-dot" aria-hidden="true"></span>投递记录保存在本机浏览器</div>
-        <div>无需账号 · 搜索校招网页时联网 · V1.2</div>
+        <div>无需账号 · 查询校招网页时联网 · V1.3</div>
       </div>
     </aside>
 
@@ -1033,7 +1034,7 @@
         <div class="page-heading">
           <div>
             <h2>按公司更新状态</h2>
-            <p>输入公司名称，进度和校招网址会一并显示；状态点击即可更新。</p>
+            <p>输入公司名称，进度和校招网址会一并显示；找到后可直接点击。</p>
           </div>
           <div class="status-ladder" aria-label="七个投递状态">
             <span class="ladder-item"><i class="ladder-dot"></i><em class="ladder-label">已投递</em></span>
@@ -1059,7 +1060,7 @@
         <div class="page-heading">
           <div>
             <h2>投递汇总</h2>
-            <p>所有记录一行一个岗位；选择“官网”时按公司名查询校招网址。</p>
+            <p>所有记录一行一个岗位；选择“官网”时自动查询校招网址，编辑时可修改。</p>
           </div>
           <div class="heading-mark" aria-label="汇总视图"><span></span><span></span><span></span></div>
         </div>
@@ -1125,6 +1126,8 @@
       "use strict";
 
       const STORAGE_KEY = "local-career-application-ledger-v1";
+      const CAMPUS_WEBSITE_CACHE_KEY = "local-career-application-campus-website-cache-v1";
+      const CAMPUS_WEBSITE_CACHE_TTL = 24 * 60 * 60 * 1000;
       const STATUS_OPTIONS = ["已投递", "笔试完", "一面面试完", "二面面试完", "三面面试完", "等待Offer", "已结束"];
       const APPLICATION_METHOD_OPTIONS = ["官网", "公众号", "线下", "其他"];
       const LEGACY_LOGIN_OPTIONS = ["手机号", "微信", "邮箱", "其他"];
@@ -1135,6 +1138,8 @@
       };
 
       let records = loadRecords();
+      let campusWebsiteCache = loadCampusWebsiteCache();
+      const campusWebsiteRequests = new Map();
       let currentView = "stats";
       let editingId = null;
       let toastTimer = null;
@@ -1155,7 +1160,8 @@
             id: String(item.id || makeId()),
             company: String(item.company).trim(),
             title: String(item.title).trim(),
-            website: isValidWebsite(item.website) ? normalizeWebsite(item.website) : "",
+            website: item.websiteSource === "manual" && isValidWebsite(item.website) ? normalizeWebsite(item.website) : "",
+            websiteSource: item.websiteSource === "manual" ? "manual" : "",
             applicationMethod: APPLICATION_METHOD_OPTIONS.includes(item.applicationMethod) ? String(item.applicationMethod) : "其他",
             status: String(item.status),
             appliedAt: Number(item.appliedAt) || Date.now()
@@ -1163,6 +1169,34 @@
         } catch (error) {
           return [];
         }
+      }
+
+      function companyKey(company) {
+        return String(company || "").trim().toLocaleLowerCase();
+      }
+
+      function loadCampusWebsiteCache() {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(CAMPUS_WEBSITE_CACHE_KEY) || "{}");
+          if (!parsed || typeof parsed !== "object") return {};
+          return Object.fromEntries(Object.entries(parsed).filter(([, item]) => item && typeof item === "object" && Number(item.checkedAt) > 0 && (!item.url || isValidWebsite(item.url))).map(([key, item]) => [key, {
+            url: item.url ? normalizeWebsite(item.url) : "",
+            checkedAt: Number(item.checkedAt),
+            error: Boolean(item.error)
+          }]));
+        } catch (error) {
+          return {};
+        }
+      }
+
+      function saveCampusWebsiteCache() {
+        localStorage.setItem(CAMPUS_WEBSITE_CACHE_KEY, JSON.stringify(campusWebsiteCache));
+      }
+
+      function cachedCampusWebsite(company) {
+        const cached = campusWebsiteCache[companyKey(company)];
+        if (!cached || Date.now() - Number(cached.checkedAt) > CAMPUS_WEBSITE_CACHE_TTL) return null;
+        return cached;
       }
 
       function persist() {
@@ -1204,14 +1238,115 @@
         catch (error) { return "打开网址"; }
       }
 
-      function websiteSearchLink(company) {
-        const query = encodeURIComponent(`${company} 校招官网`);
-        return `<a class="website-search-link" href="https://www.baidu.com/s?wd=${query}" target="_blank" rel="noopener noreferrer" title="搜索：${escapeHTML(company)} 校招官网">搜索校招官网 ↗</a>`;
+      function campusWebsiteRetryButton(company) {
+        return `<button class="website-retry" type="button" data-action="retry-website" data-company="${escapeHTML(company)}">重新查找</button>`;
       }
 
-      function websiteDisplay(company, applicationMethod) {
+      function extractCampusWebsite(markdown, company) {
+        const candidates = [];
+        const pattern = /###\s+\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/gi;
+        let match;
+        while ((match = pattern.exec(String(markdown || "")))) {
+          const title = String(match[1] || "").trim();
+          const url = normalizeWebsite(String(match[2] || "").trim());
+          if (!title || !isValidWebsite(url) || candidates.some((item) => item.url === url)) continue;
+          candidates.push({ title, url });
+        }
+
+        const excludedHost = /(baike\.baidu\.com|zhihu\.com|weibo\.com|autohome\.com|zhipin\.com|liepin\.com|51job\.com|lagou\.com|jobui\.com|wikipedia\.org|forum\.|news\.)/i;
+        const campusSignal = /(校招|校园招聘|校园|应届|毕业生|campus|graduate|campus[-_ ]?recruit)/i;
+        const recruitingSignal = /(招聘|招募|career|jobs?|recruit|talent|join us|加入我们|人才)/i;
+        const pathSignal = /(campus|school|graduate|zhaopin|recruit|career|jobs?|join|talent)/i;
+        const companyText = String(company || "").toLocaleLowerCase();
+
+        return candidates.map((candidate, index) => {
+          let score = 0;
+          const haystack = `${candidate.title} ${candidate.url}`;
+          if (excludedHost.test(candidate.url)) score -= 1000;
+          if (campusSignal.test(haystack)) score += 60;
+          if (recruitingSignal.test(haystack)) score += 25;
+          try {
+            const parsed = new URL(candidate.url);
+            if (pathSignal.test(`${parsed.hostname}${parsed.pathname}`)) score += 35;
+            if (parsed.pathname && parsed.pathname !== "/") score += 3;
+          } catch (error) {
+            score -= 1000;
+          }
+          if (candidate.title.toLocaleLowerCase().includes(companyText) || companyText.includes(candidate.title.toLocaleLowerCase())) score += 5;
+          return { ...candidate, score: score - index * 0.2 };
+        }).filter((candidate) => candidate.score >= 35).sort((left, right) => right.score - left.score)[0]?.url || "";
+      }
+
+      async function fetchCampusSearch(query, signal) {
+        const encodedQuery = encodeURIComponent(query);
+        const endpoint = `https://r.jina.ai/http://www.bing.com/search?format=rss%26q=${encodedQuery}`;
+        const response = await fetch(endpoint, { signal, headers: { Accept: "text/plain" } });
+        if (!response.ok) throw new Error("campus search unavailable");
+        return response.text();
+      }
+
+      async function queryCampusWebsite(company) {
+        const queries = [`${company} 校招官网`, `${company} 校园招聘`];
+        for (const query of queries) {
+          const controller = new AbortController();
+          const timeoutId = window.setTimeout(() => controller.abort(), 12000);
+          try {
+            const markdown = await fetchCampusSearch(query, controller.signal);
+            const website = extractCampusWebsite(markdown, company);
+            if (website) return website;
+          } finally {
+            window.clearTimeout(timeoutId);
+          }
+        }
+        return "";
+      }
+
+      function startCampusWebsiteLookup(company, force = false) {
+        const key = companyKey(company);
+        if (!key || campusWebsiteRequests.has(key)) return;
+        if (force) {
+          delete campusWebsiteCache[key];
+          saveCampusWebsiteCache();
+        }
+        if (!force && cachedCampusWebsite(company)) return;
+
+        const request = queryCampusWebsite(company)
+          .then((website) => {
+            campusWebsiteCache[key] = { url: website, checkedAt: Date.now(), error: false };
+            saveCampusWebsiteCache();
+          })
+          .catch(() => {
+            campusWebsiteCache[key] = { url: "", checkedAt: Date.now(), error: true };
+            saveCampusWebsiteCache();
+          })
+          .finally(() => {
+            campusWebsiteRequests.delete(key);
+            if (currentView === "status") renderStatusResults();
+            if (currentView === "summary" && !editingId) renderSummary();
+          });
+        campusWebsiteRequests.set(key, request);
+      }
+
+      function scheduleCampusWebsiteLookups(companies) {
+        Array.from(new Set(companies.map((company) => String(company || "").trim()).filter(Boolean))).forEach((company) => startCampusWebsiteLookup(company));
+      }
+
+      function websiteDisplay(company, applicationMethod, storedWebsite = "") {
         if (applicationMethod !== "官网") return `<span class="website-missing">不需要查询</span>`;
-        return `<span class="website-missing">待查校招网址</span>${websiteSearchLink(company)}`;
+        const savedWebsite = isValidWebsite(storedWebsite) ? normalizeWebsite(storedWebsite) : "";
+        if (savedWebsite) return websiteLink(savedWebsite, "点击跳转");
+        const cached = cachedCampusWebsite(company);
+        if (cached?.url) return websiteLink(cached.url, "点击跳转");
+        if (cached?.error) return `<span class="website-missing">查询失败</span>${campusWebsiteRetryButton(company)}`;
+        if (cached) return `<span class="website-missing">未找到明确校招官网</span>${campusWebsiteRetryButton(company)}`;
+        return `<span class="website-loading">正在查找校招官网…</span>`;
+      }
+
+      function websiteEditorValue(company, applicationMethod, storedWebsite = "") {
+        if (applicationMethod !== "官网") return "";
+        const savedWebsite = isValidWebsite(storedWebsite) ? normalizeWebsite(storedWebsite) : "";
+        if (savedWebsite) return savedWebsite;
+        return cachedCampusWebsite(company)?.url || "";
       }
 
       function formatDate(timestamp) {
@@ -1312,7 +1447,7 @@
                 <div class="role-summary">
                   <h4 title="${escapeHTML(record.title)}">${escapeHTML(record.title)}</h4>
                   <div class="role-meta"><span>投递于 ${formatDate(record.appliedAt)}</span><span class="role-meta-divider">·</span>${statusBadge(record.status)}</div>
-                  <div class="role-website">${websiteDisplay(record.company, record.applicationMethod)}</div>
+                  <div class="role-website">${websiteDisplay(record.company, record.applicationMethod, record.website)}</div>
                 </div>
                 <div class="state-actions">
                   <span class="state-actions-label">点击更新当前状态</span>
@@ -1324,6 +1459,7 @@
             `).join("")}
           </article>
         `).join("");
+        scheduleCampusWebsiteLookups(matched.filter((record) => record.applicationMethod === "官网").map((record) => record.company));
       }
 
       function getFilteredRecords() {
@@ -1359,7 +1495,7 @@
             return `<tr class="is-editing" data-id="${escapeHTML(record.id)}">
               <td><input class="inline-input" data-field="company" value="${escapeHTML(record.company)}" aria-label="公司名称" /></td>
               <td><input class="inline-input" data-field="title" value="${escapeHTML(record.title)}" aria-label="岗位名称" /></td>
-              <td>${websiteDisplay(record.company, record.applicationMethod)}</td>
+              <td><input class="inline-input" data-field="website" value="${escapeHTML(websiteEditorValue(record.company, record.applicationMethod, record.website))}" data-initial-value="${escapeHTML(websiteEditorValue(record.company, record.applicationMethod, record.website))}" aria-label="校招网址" placeholder="校招网址（可留空）" /></td>
               <td class="time-cell">${formatDate(record.appliedAt)}</td>
               <td><select class="inline-select" data-field="applicationMethod" aria-label="投递方式">${inlineSelectOptions(APPLICATION_METHOD_OPTIONS, record.applicationMethod)}</select></td>
               <td><select class="inline-select" data-field="status" aria-label="当前状态">${inlineSelectOptions(STATUS_OPTIONS, record.status)}</select></td>
@@ -1369,13 +1505,14 @@
           return `<tr data-id="${escapeHTML(record.id)}">
             <td><span class="company-cell" title="${escapeHTML(record.company)}">${escapeHTML(record.company)}</span></td>
             <td><span class="role-cell" title="${escapeHTML(record.title)}">${escapeHTML(record.title)}</span></td>
-            <td>${websiteDisplay(record.company, record.applicationMethod)}</td>
+            <td>${websiteDisplay(record.company, record.applicationMethod, record.website)}</td>
             <td class="time-cell">${formatDate(record.appliedAt)}</td>
             <td>${escapeHTML(record.applicationMethod)}</td>
             <td>${statusBadge(record.status)}</td>
             <td><div class="table-actions"><button class="table-action" type="button" data-action="edit" data-id="${escapeHTML(record.id)}">编辑</button><button class="table-action is-danger" type="button" data-action="delete" data-id="${escapeHTML(record.id)}">删除</button></div></td>
           </tr>`;
         }).join("");
+        scheduleCampusWebsiteLookups(filtered.filter((record) => record.applicationMethod === "官网").map((record) => record.company));
       }
 
       function renderAll() {
@@ -1420,7 +1557,7 @@
         if (!STATUS_OPTIONS.includes(status)) { statusInput.setAttribute("aria-invalid", "true"); statusInput.focus(); showToast("请选择当前状态", "error"); return; }
 
         const appliedAt = Date.now();
-        const newRecords = jobs.map((title) => ({ id: makeId(), company, title, website: "", applicationMethod, status, appliedAt }));
+        const newRecords = jobs.map((title) => ({ id: makeId(), company, title, website: "", websiteSource: "", applicationMethod, status, appliedAt }));
         records = [...newRecords, ...records];
         persist();
         event.target.reset();
@@ -1440,12 +1577,17 @@
         if (!record) return;
         const company = row.querySelector('[data-field="company"]').value.trim();
         const title = row.querySelector('[data-field="title"]').value.trim();
+        const websiteInput = row.querySelector('[data-field="website"]');
         const applicationMethod = row.querySelector('[data-field="applicationMethod"]').value;
         const status = row.querySelector('[data-field="status"]').value;
+        const website = websiteInput.value.trim();
         if (!company || !title) { showToast("公司名称和岗位名称不能为空", "error"); return; }
         if (!APPLICATION_METHOD_OPTIONS.includes(applicationMethod) || !STATUS_OPTIONS.includes(status)) { showToast("请检查投递方式和当前状态", "error"); return; }
+        if (website && !isValidWebsite(website)) { showToast("请输入有效的校招网址", "error"); websiteInput.focus(); return; }
         record.company = company;
         record.title = title;
+        record.website = applicationMethod === "官网" && website ? normalizeWebsite(website) : "";
+        record.websiteSource = record.website ? "manual" : "";
         record.applicationMethod = applicationMethod;
         record.status = status;
         editingId = null;
@@ -1460,6 +1602,7 @@
         const id = target.dataset.id;
 
         if (action === "update-status") { updateStatus(id, target.dataset.status); return; }
+        if (action === "retry-website") { startCampusWebsiteLookup(target.dataset.company, true); if (currentView === "status") renderStatusResults(); if (currentView === "summary") renderSummary(); return; }
         if (action === "edit") { editingId = id; renderSummary(); const input = $("#summary-body tr.is-editing .inline-input"); if (input) input.focus(); return; }
         if (action === "cancel-edit") { editingId = null; renderSummary(); return; }
         if (action === "save-edit") { saveInlineEdit(id, target.closest("tr")); return; }
