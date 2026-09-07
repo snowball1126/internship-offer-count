@@ -1230,7 +1230,7 @@
       function websiteLink(value, label = "打开网址") {
         const website = isValidWebsite(value) ? normalizeWebsite(value) : "";
         if (!website) return `<span class="website-missing">未记录网址</span>`;
-        return `<a class="website-link" href="${escapeHTML(website)}" target="_blank" rel="noopener noreferrer" title="${escapeHTML(website)}">${escapeHTML(label)} ↗</a>`;
+        return `<a class="website-link" href="${escapeHTML(website)}" target="_blank" rel="noopener noreferrer" title="${escapeHTML(website)}">${escapeHTML(label)}</a>`;
       }
 
       function websiteDomain(value) {
