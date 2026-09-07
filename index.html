@@ -1,2052 +1,308 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="color-scheme" content="light" />
-  <link rel="icon" href="data:," />
-  <title>求职投递台账 · 云端版</title>
-  <style>
-    :root {
-      --bg: #f2f5f9;
-      --surface: #ffffff;
-      --surface-soft: #f8fafc;
-      --ink: #18253d;
-      --ink-strong: #10203b;
-      --muted: #738096;
-      --muted-strong: #526078;
-      --line: #e4e9f1;
-      --line-strong: #d5ddea;
-      --navy: #152641;
-      --navy-soft: #203555;
-      --blue: #3f6ee8;
-      --blue-dark: #2e56c5;
-      --blue-soft: #ebf0ff;
-      --teal: #159b8a;
-      --teal-soft: #e6f7f3;
-      --amber: #b97a1c;
-      --amber-soft: #fff4df;
-      --red: #c84c62;
-      --red-soft: #fff0f2;
-      --purple: #8163c9;
-      --purple-soft: #f1edff;
-      --shadow: 0 12px 32px rgba(22, 39, 70, 0.06);
-      --shadow-sm: 0 4px 14px rgba(22, 39, 70, 0.05);
-      --radius: 16px;
-      --radius-sm: 10px;
-      --focus: 0 0 0 3px rgba(63, 110, 232, 0.18);
-    }
-
-    * { box-sizing: border-box; }
-
-    html { min-width: 320px; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--ink);
-      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
-      font-size: 14px;
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    button, input, textarea, select { font: inherit; }
-    button { cursor: pointer; }
-    button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
-      outline: none;
-      box-shadow: var(--focus);
-    }
-
-    [hidden] { display: none !important; }
-
-    .app-shell {
-      min-height: 100vh;
-      display: grid;
-      grid-template-columns: 244px minmax(0, 1fr);
-    }
-
-    .sidebar {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      padding: 27px 18px 20px;
-      background: var(--navy);
-      color: #fff;
-      overflow: hidden;
-    }
-
-    .sidebar::after {
-      content: "";
-      position: absolute;
-      width: 220px;
-      height: 220px;
-      right: -130px;
-      bottom: 40px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-      box-shadow: 0 0 0 30px rgba(255, 255, 255, 0.02), 0 0 0 60px rgba(255, 255, 255, 0.02);
-      pointer-events: none;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      padding: 0 10px;
-      color: #fff;
-      text-decoration: none;
-    }
-
-    .brand-mark {
-      position: relative;
-      width: 34px;
-      height: 34px;
-      display: grid;
-      place-items: center;
-      flex: 0 0 34px;
-      border-radius: 11px;
-      background: #f5c86c;
-      color: var(--navy);
-      font-size: 15px;
-      font-weight: 800;
-      letter-spacing: -0.04em;
-      box-shadow: 8px 8px 0 rgba(245, 200, 108, 0.12);
-    }
-
-    .brand-mark::before,
-    .brand-mark::after {
-      content: "";
-      position: absolute;
-      background: var(--navy);
-      border-radius: 2px;
-    }
-
-    .brand-mark::before { width: 4px; height: 4px; top: 7px; right: 7px; }
-    .brand-mark::after { width: 4px; height: 4px; bottom: 7px; left: 7px; }
-
-    .brand-copy { min-width: 0; }
-    .brand-name { display: block; font-size: 15px; font-weight: 750; letter-spacing: 0.01em; }
-    .brand-subtitle { display: block; margin-top: 1px; color: #95a7c3; font-size: 11px; }
-
-    .nav-label {
-      margin: 47px 11px 10px;
-      color: #7285a4;
-      font-size: 10px;
-      font-weight: 750;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-    }
-
-    .nav-list { display: grid; gap: 5px; }
-
-    .nav-button {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      width: 100%;
-      min-height: 47px;
-      padding: 0 12px;
-      border: 0;
-      border-radius: 11px;
-      background: transparent;
-      color: #aebbd0;
-      text-align: left;
-      transition: background 160ms ease, color 160ms ease, transform 160ms ease;
-    }
-
-    .nav-button:hover { background: rgba(255, 255, 255, 0.07); color: #fff; }
-    .nav-button:active { transform: translateY(1px); }
-
-    .nav-button.is-active {
-      background: #eef3ff;
-      color: var(--navy);
-      box-shadow: 0 8px 22px rgba(5, 15, 37, 0.15);
-    }
-
-    .nav-button.is-active::before {
-      content: "";
-      position: absolute;
-      left: -18px;
-      width: 3px;
-      height: 22px;
-      border-radius: 0 4px 4px 0;
-      background: #f5c86c;
-    }
-
-    .nav-icon {
-      display: grid;
-      place-items: center;
-      width: 22px;
-      height: 22px;
-      color: currentColor;
-      font-size: 16px;
-      line-height: 1;
-    }
-
-    .nav-button span:last-child { font-size: 13px; font-weight: 650; }
-
-    .sidebar-footer {
-      position: relative;
-      z-index: 1;
-      margin-top: auto;
-      padding: 13px 12px 2px;
-      color: #8498b7;
-      font-size: 11px;
-      line-height: 1.7;
-    }
-
-    .privacy-note {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      color: #c8d4e7;
-      font-weight: 650;
-    }
-
-    .privacy-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #62d9bb;
-      box-shadow: 0 0 0 4px rgba(98, 217, 187, 0.13);
-    }
-
-    .main-content {
-      min-width: 0;
-      padding: 30px clamp(22px, 4vw, 56px) 48px;
-    }
-
-    .topbar {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 20px;
-      max-width: 1320px;
-      margin: 0 auto 28px;
-    }
-
-    .topbar-left { min-width: 0; }
-
-    .eyebrow {
-      display: block;
-      margin-bottom: 5px;
-      color: var(--blue);
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-    }
-
-    .topbar h1 {
-      margin: 0;
-      color: var(--ink-strong);
-      font-family: "Aptos Display", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-      font-size: clamp(24px, 3vw, 31px);
-      font-weight: 760;
-      letter-spacing: -0.045em;
-      line-height: 1.14;
-    }
-
-    .local-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      flex: 0 0 auto;
-      margin-top: 2px;
-      padding: 8px 11px;
-      border: 1px solid #dce9e7;
-      border-radius: 999px;
-      background: #f8fffd;
-      color: #37786f;
-      font-size: 12px;
-      font-weight: 650;
-    }
-
-    .local-badge::before {
-      content: "";
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--teal);
-      box-shadow: 0 0 0 4px rgba(21, 155, 138, 0.12);
-    }
-
-    .auth-screen {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 28px 18px;
-      background:
-        radial-gradient(circle at 14% 12%, rgba(63, 110, 232, 0.11), transparent 28%),
-        radial-gradient(circle at 85% 86%, rgba(21, 155, 138, 0.1), transparent 26%),
-        var(--bg);
-    }
-
-    .auth-shell { width: min(100%, 420px); }
-
-    .auth-brand {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      margin: 0 auto 17px;
-      width: fit-content;
-    }
-
-    .auth-brand .brand-mark { box-shadow: 8px 8px 0 rgba(21, 38, 65, 0.08); }
-    .auth-brand-copy strong { display: block; color: var(--ink-strong); font-size: 16px; font-weight: 780; }
-    .auth-brand-copy span { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
-
-    .auth-card {
-      padding: 28px;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      background: var(--surface);
-      box-shadow: 0 22px 55px rgba(22, 39, 70, 0.11);
-    }
-
-    .auth-card h1 { margin: 0; color: var(--ink-strong); font-size: 22px; font-weight: 780; letter-spacing: -0.035em; }
-    .auth-card > p { margin: 7px 0 22px; color: var(--muted); font-size: 12px; }
-    .auth-form { display: grid; gap: 15px; }
-    .auth-form .field-label { margin-bottom: 6px; }
-    .auth-submit { width: 100%; margin-top: 3px; }
-    .auth-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 17px; }
-    .auth-link { padding: 0; border: 0; background: transparent; color: var(--blue); font-size: 12px; font-weight: 700; }
-    .auth-link:hover { color: var(--blue-dark); text-decoration: underline; }
-    .auth-message { min-height: 18px; margin: 15px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
-    .auth-message.is-error { color: var(--red); }
-    .auth-message.is-success { color: var(--teal); }
-    .auth-footnote { margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--line); color: #8b98ab; font-size: 11px; line-height: 1.6; }
-
-    .account-area { display: flex; align-items: center; justify-content: flex-end; gap: 10px; min-width: 0; }
-    .account-email { max-width: 230px; overflow: hidden; color: var(--muted-strong); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
-    .sync-badge { display: inline-flex; align-items: center; gap: 7px; padding: 8px 10px; border: 1px solid #dce9e7; border-radius: 999px; background: #f8fffd; color: #37786f; font-size: 11px; font-weight: 700; white-space: nowrap; }
-    .sync-badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 0 4px rgba(21, 155, 138, 0.12); }
-    .sync-badge.is-busy { border-color: #e4e8f6; background: #fafbff; color: var(--blue); }
-    .sync-badge.is-busy::before { background: var(--blue); box-shadow: 0 0 0 4px rgba(63, 110, 232, 0.12); }
-    .sync-badge.is-error { border-color: #f1d5db; background: #fff9fa; color: var(--red); }
-    .sync-badge.is-error::before { background: var(--red); box-shadow: 0 0 0 4px rgba(200, 76, 98, 0.12); }
-    .account-area .text-button { padding: 0 8px; border: 1px solid var(--line-strong); background: #fff; color: var(--muted-strong); }
-    .account-area .text-button:hover { border-color: #b4c0d2; background: var(--surface-soft); color: var(--ink); }
-
-    .migration-banner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      max-width: 1320px;
-      margin: 0 auto 20px;
-      padding: 13px 16px;
-      border: 1px solid #f0dfb7;
-      border-radius: 12px;
-      background: #fffaf0;
-      color: #775b22;
-    }
-    .migration-copy { min-width: 0; }
-    .migration-copy strong { display: block; font-size: 12px; font-weight: 760; }
-    .migration-copy span { display: block; margin-top: 3px; color: #967b49; font-size: 11px; }
-    .migration-actions { display: flex; flex: 0 0 auto; gap: 8px; }
-    .migration-actions .text-button { padding: 0 9px; border: 1px solid transparent; color: #967b49; }
-    .migration-actions .text-button:hover { border-color: #e7cf9a; background: #fff4db; }
-
-    .toast-root {
-      position: fixed;
-      z-index: 20;
-      right: 26px;
-      bottom: 24px;
-      display: grid;
-      gap: 9px;
-      width: min(360px, calc(100vw - 32px));
-      pointer-events: none;
-    }
-
-    .toast {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 13px 15px;
-      border: 1px solid #dbece8;
-      border-radius: 12px;
-      background: #fbfffe;
-      box-shadow: 0 13px 32px rgba(20, 56, 65, 0.15);
-      color: #24675e;
-      font-size: 13px;
-      font-weight: 650;
-      animation: toast-in 180ms ease both;
-    }
-
-    .toast.is-error { border-color: #f1d5db; background: #fff9fa; color: var(--red); }
-    .toast-icon { flex: 0 0 auto; font-weight: 800; }
-
-    @keyframes toast-in {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .view { max-width: 1320px; margin: 0 auto; }
-
-    .page-heading {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-
-    .page-heading h2 {
-      margin: 0;
-      color: var(--ink-strong);
-      font-size: 19px;
-      font-weight: 740;
-      letter-spacing: -0.025em;
-    }
-
-    .page-heading p {
-      margin: 5px 0 0;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .heading-mark {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      padding-bottom: 4px;
-    }
-
-    .heading-mark span {
-      width: 22px;
-      height: 5px;
-      border-radius: 99px;
-      background: var(--line-strong);
-    }
-
-    .heading-mark span:nth-child(1) { background: var(--blue); }
-    .heading-mark span:nth-child(2) { background: #83a0ef; }
-    .heading-mark span:nth-child(3) { background: #b1c1f4; }
-
-    .metric-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 13px;
-      margin-bottom: 20px;
-    }
-
-    .metric-card {
-      position: relative;
-      min-height: 112px;
-      padding: 17px 18px 15px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: var(--surface);
-      box-shadow: var(--shadow-sm);
-      overflow: hidden;
-    }
-
-    .metric-card::after {
-      content: "";
-      position: absolute;
-      right: 17px;
-      bottom: 17px;
-      width: 29px;
-      height: 29px;
-      border: 1px solid currentColor;
-      border-radius: 50%;
-      opacity: 0.12;
-    }
-
-    .metric-card::before {
-      content: "";
-      position: absolute;
-      right: 29px;
-      bottom: 29px;
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: currentColor;
-      opacity: 0.35;
-    }
-
-    .metric-card.is-blue { color: var(--blue); }
-    .metric-card.is-teal { color: var(--teal); }
-    .metric-card.is-amber { color: var(--amber); }
-    .metric-card.is-red { color: var(--red); }
-
-    .metric-label {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .metric-value {
-      display: block;
-      margin-top: 6px;
-      color: var(--ink-strong);
-      font-family: "Aptos Display", "Segoe UI", sans-serif;
-      font-size: 29px;
-      font-weight: 760;
-      letter-spacing: -0.05em;
-      line-height: 1;
-    }
-
-    .card {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: var(--surface);
-      box-shadow: var(--shadow);
-    }
-
-    .content-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.72fr);
-      align-items: start;
-      gap: 20px;
-    }
-
-    .form-card { padding: 24px; }
-
-    .card-title-row {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 14px;
-      margin-bottom: 21px;
-    }
-
-    .card-title-row h3 {
-      margin: 0;
-      color: var(--ink-strong);
-      font-size: 16px;
-      font-weight: 740;
-      letter-spacing: -0.02em;
-    }
-
-    .card-title-row p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
-
-    .mini-badge {
-      flex: 0 0 auto;
-      padding: 5px 9px;
-      border-radius: 7px;
-      background: var(--blue-soft);
-      color: var(--blue-dark);
-      font-size: 11px;
-      font-weight: 750;
-    }
-
-    .field-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px 16px;
-    }
-
-    .field { min-width: 0; }
-    .field.is-full { grid-column: 1 / -1; }
-
-    .field-label {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      margin-bottom: 7px;
-      color: var(--muted-strong);
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .required { color: var(--red); }
-
-    .input, .select, .textarea {
-      width: 100%;
-      border: 1px solid var(--line-strong);
-      border-radius: var(--radius-sm);
-      background: #fff;
-      color: var(--ink-strong);
-      transition: border-color 160ms ease, box-shadow 160ms ease;
-    }
-
-    .input, .select { height: 42px; padding: 0 12px; }
-    .textarea { display: block; min-height: 130px; padding: 11px 12px; resize: vertical; line-height: 1.65; }
-
-
-    .input::placeholder, .textarea::placeholder { color: #adb8c8; }
-    .input:hover, .select:hover, .textarea:hover { border-color: #b6c3d8; }
-    .input:focus, .select:focus, .textarea:focus { border-color: var(--blue); box-shadow: var(--focus); outline: none; }
-
-    .field-hint {
-      display: block;
-      margin-top: 6px;
-      color: #8b98ab;
-      font-size: 11px;
-    }
-
-    .form-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      margin-top: 23px;
-      padding-top: 17px;
-      border-top: 1px solid var(--line);
-    }
-
-    .form-footnote { color: var(--muted); font-size: 11px; }
-
-    .primary-button, .secondary-button, .danger-button, .text-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      min-height: 38px;
-      border-radius: 9px;
-      font-size: 12px;
-      font-weight: 720;
-      transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
-    }
-
-    .primary-button {
-      padding: 0 17px;
-      border: 1px solid var(--blue);
-      background: var(--blue);
-      color: #fff;
-      box-shadow: 0 5px 12px rgba(63, 110, 232, 0.18);
-    }
-
-    .primary-button:hover { border-color: var(--blue-dark); background: var(--blue-dark); }
-    .primary-button:active, .secondary-button:active, .danger-button:active { transform: translateY(1px); }
-
-    .secondary-button {
-      padding: 0 14px;
-      border: 1px solid var(--line-strong);
-      background: #fff;
-      color: var(--muted-strong);
-    }
-
-    .secondary-button:hover { border-color: #b4c0d2; background: var(--surface-soft); color: var(--ink); }
-
-    .guidance-card { padding: 23px 21px; }
-
-    .card-kicker {
-      margin-bottom: 20px;
-      color: var(--blue);
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-    }
-
-    .record-steps {
-      position: relative;
-      display: grid;
-      gap: 20px;
-      margin: 0;
-      padding: 0 0 4px;
-      list-style: none;
-    }
-
-    .record-steps::before {
-      content: "";
-      position: absolute;
-      top: 13px;
-      bottom: 13px;
-      left: 12px;
-      width: 1px;
-      background: #dce3ed;
-    }
-
-    .record-step { position: relative; display: grid; grid-template-columns: 25px 1fr; gap: 10px; align-items: start; }
-
-    .step-number {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      place-items: center;
-      width: 25px;
-      height: 25px;
-      border: 1px solid #c9d5e8;
-      border-radius: 50%;
-      background: #fff;
-      color: var(--blue);
-      font-size: 10px;
-      font-weight: 800;
-    }
-
-    .record-step strong { display: block; color: var(--ink-strong); font-size: 12px; font-weight: 730; }
-    .record-step p { margin: 2px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
-
-    .tip-box {
-      display: flex;
-      gap: 9px;
-      margin-top: 22px;
-      padding: 12px;
-      border: 1px solid #eee7cf;
-      border-radius: 11px;
-      background: #fffbf1;
-      color: #84682c;
-      font-size: 11px;
-      line-height: 1.6;
-    }
-
-    .tip-icon { flex: 0 0 auto; color: #d09a2e; font-weight: 800; }
-
-    .recent-card { margin-top: 20px; overflow: hidden; }
-
-    .recent-header, .table-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 18px 21px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .recent-header h3, .table-header h3 { margin: 0; color: var(--ink-strong); font-size: 14px; font-weight: 740; }
-    .recent-header span, .table-header span { color: var(--muted); font-size: 11px; }
-
-    .recent-list { display: grid; }
-
-    .recent-item {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto auto;
-      align-items: center;
-      gap: 15px;
-      padding: 14px 21px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .recent-item:last-child { border-bottom: 0; }
-    .recent-main { min-width: 0; }
-    .recent-company { display: block; overflow: hidden; color: var(--ink-strong); font-size: 12px; font-weight: 720; text-overflow: ellipsis; white-space: nowrap; }
-    .recent-role { display: block; overflow: hidden; margin-top: 2px; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
-    .recent-time { color: #9aa6b7; font-size: 11px; white-space: nowrap; }
-    .recent-url { display: inline-block; margin-top: 4px; color: var(--blue); font-size: 10px; font-weight: 700; text-decoration: none; }
-    .recent-url:hover { color: var(--blue-dark); text-decoration: underline; }
-
-    .empty-inline {
-      padding: 26px 20px;
-      color: var(--muted);
-      font-size: 12px;
-      text-align: center;
-    }
-
-    .status-ladder {
-      position: relative;
-      display: flex;
-      align-items: flex-start;
-      gap: 0;
-      padding: 0 2px 5px;
-    }
-
-    .status-ladder::before {
-      content: "";
-      position: absolute;
-      top: 7px;
-      left: 4px;
-      right: 4px;
-      height: 2px;
-      background: #dfe5ef;
-    }
-
-    .ladder-item { position: relative; z-index: 1; display: grid; justify-items: center; gap: 6px; width: 45px; }
-    .ladder-dot { width: 10px; height: 10px; border: 2px solid var(--bg); border-radius: 50%; background: #b7c2d2; box-shadow: 0 0 0 1px #c8d2e0; }
-    .ladder-item:first-child .ladder-dot { background: var(--blue); box-shadow: 0 0 0 1px var(--blue); }
-    .ladder-item:nth-child(2) .ladder-dot { background: #7395e8; box-shadow: 0 0 0 1px #7395e8; }
-    .ladder-item:nth-child(3) .ladder-dot { background: #8179d7; box-shadow: 0 0 0 1px #8179d7; }
-    .ladder-item:nth-child(4) .ladder-dot { background: #9966c1; box-shadow: 0 0 0 1px #9966c1; }
-    .ladder-item:nth-child(5) .ladder-dot { background: var(--purple); box-shadow: 0 0 0 1px var(--purple); }
-    .ladder-item:nth-child(6) .ladder-dot { background: var(--amber); box-shadow: 0 0 0 1px var(--amber); }
-    .ladder-item:nth-child(7) .ladder-dot { background: var(--red); box-shadow: 0 0 0 1px var(--red); }
-    .ladder-label { color: #8996a9; font-size: 9px; line-height: 1.15; text-align: center; white-space: nowrap; }
-
-    .search-card { padding: 17px 20px; margin-bottom: 19px; }
-
-    .search-label { display: block; margin-bottom: 7px; color: var(--muted-strong); font-size: 12px; font-weight: 720; }
-
-    .search-box { position: relative; }
-    .search-box::before { content: "⌕"; position: absolute; top: 8px; left: 13px; color: #8c9bb1; font-size: 20px; line-height: 1; }
-    .search-box .input { padding-left: 38px; }
-    .search-helper { margin: 7px 0 0; color: var(--muted); font-size: 11px; }
-
-    .status-results { display: grid; gap: 15px; }
-
-    .company-card { overflow: hidden; }
-
-    .company-card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      padding: 17px 20px;
-      border-bottom: 1px solid var(--line);
-      background: #fcfdff;
-    }
-
-    .company-card-header h3 { margin: 0; color: var(--ink-strong); font-size: 15px; font-weight: 740; }
-    .company-card-header p { margin: 3px 0 0; color: var(--muted); font-size: 11px; }
-
-    .company-count { padding: 5px 8px; border-radius: 7px; background: var(--blue-soft); color: var(--blue-dark); font-size: 11px; font-weight: 750; white-space: nowrap; }
-
-    .role-card {
-      display: grid;
-      grid-template-columns: minmax(190px, 0.68fr) minmax(0, 1.32fr);
-      gap: 20px;
-      align-items: center;
-      padding: 18px 20px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .role-card:last-child { border-bottom: 0; }
-    .role-summary { min-width: 0; }
-    .role-summary h4 { margin: 0; overflow: hidden; color: var(--ink-strong); font-size: 13px; font-weight: 720; text-overflow: ellipsis; white-space: nowrap; }
-    .role-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 7px; color: var(--muted); font-size: 11px; }
-    .role-meta-divider { color: #bbc4d2; }
-    .role-website { margin-top: 8px; }
-    .website-link { display: inline-block; max-width: 220px; overflow: hidden; color: var(--blue); font-size: 11px; font-weight: 700; text-decoration: none; text-overflow: ellipsis; vertical-align: middle; white-space: nowrap; }
-    .website-link:hover { color: var(--blue-dark); text-decoration: underline; }
-    .website-missing { color: #a8b2c0; font-size: 11px; }
-    .website-loading { color: var(--purple); font-size: 11px; font-weight: 650; }
-    .website-retry { margin-left: 7px; padding: 0; border: 0; background: transparent; color: var(--blue); font-size: 11px; font-weight: 700; }
-    .website-retry:hover { color: var(--blue-dark); text-decoration: underline; }
-
-    .state-actions { min-width: 0; }
-    .state-actions-label { display: block; margin-bottom: 8px; color: #94a0b1; font-size: 10px; font-weight: 650; }
-
-    .state-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
-
-    .state-button {
-      min-height: 29px;
-      padding: 0 9px;
-      border: 1px solid var(--line-strong);
-      border-radius: 7px;
-      background: #fff;
-      color: var(--muted-strong);
-      font-size: 10px;
-      font-weight: 650;
-      white-space: nowrap;
-      transition: border-color 150ms ease, background 150ms ease, color 150ms ease, transform 150ms ease;
-    }
-
-    .state-button:hover { border-color: #9fb2d3; background: var(--surface-soft); color: var(--ink); }
-    .state-button:active { transform: translateY(1px); }
-    .state-button.is-current { border-color: var(--blue); background: var(--blue); color: #fff; box-shadow: 0 3px 8px rgba(63, 110, 232, 0.18); }
-
-    .summary-stats { margin-bottom: 20px; }
-
-    .filters-card {
-      display: grid;
-      grid-template-columns: minmax(220px, 1.5fr) minmax(150px, 0.72fr) minmax(150px, 0.72fr) auto;
-      align-items: end;
-      gap: 12px;
-      padding: 17px 20px;
-      margin-bottom: 15px;
-    }
-
-    .filter-field { min-width: 0; }
-    .filter-label { display: block; margin-bottom: 6px; color: var(--muted-strong); font-size: 11px; font-weight: 720; }
-    .filter-search { position: relative; }
-    .filter-search::before { content: "⌕"; position: absolute; top: 8px; left: 12px; color: #91a0b4; font-size: 19px; line-height: 1; }
-    .filter-search .input { padding-left: 35px; }
-    .filter-clear { align-self: end; border: 0; background: transparent; color: var(--blue); }
-    .filter-clear:hover { color: var(--blue-dark); text-decoration: underline; }
-
-    .table-card { overflow: hidden; }
-
-    .table-meta { display: flex; align-items: center; gap: 8px; }
-    .table-meta strong { color: var(--ink); font-size: 12px; }
-
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; min-width: 1040px; border-collapse: collapse; }
-    th { padding: 11px 17px; background: #fafbfc; color: #8996a9; font-size: 10px; font-weight: 750; letter-spacing: 0.03em; text-align: left; white-space: nowrap; }
-    td { padding: 14px 17px; border-top: 1px solid var(--line); color: var(--muted-strong); font-size: 12px; vertical-align: middle; }
-    tbody tr { transition: background 150ms ease; }
-    tbody tr:hover { background: #fbfcfe; }
-    tbody tr.is-editing { background: #f7f9ff; }
-
-    .company-cell { display: block; max-width: 190px; overflow: hidden; color: var(--ink-strong); font-weight: 720; text-overflow: ellipsis; white-space: nowrap; }
-    .role-cell { display: block; max-width: 220px; overflow: hidden; color: var(--ink); text-overflow: ellipsis; white-space: nowrap; }
-    .time-cell { color: #7f8da1; font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .url-cell { display: inline-block; max-width: 180px; overflow: hidden; color: var(--blue); text-overflow: ellipsis; white-space: nowrap; }
-
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      min-height: 25px;
-      padding: 0 8px;
-      border-radius: 6px;
-      font-size: 10px;
-      font-weight: 730;
-      white-space: nowrap;
-    }
-
-    .status-badge::before { content: ""; width: 5px; height: 5px; margin-right: 5px; border-radius: 50%; background: currentColor; }
-    .status-applied { background: var(--blue-soft); color: var(--blue-dark); }
-    .status-test { background: #eef2ff; color: #5c70bf; }
-    .status-interview { background: var(--purple-soft); color: var(--purple); }
-    .status-offer { background: var(--amber-soft); color: var(--amber); }
-    .status-closed { background: var(--red-soft); color: var(--red); }
-
-    .table-actions { display: flex; align-items: center; gap: 6px; }
-    .table-action { min-height: 28px; padding: 0 7px; border: 0; border-radius: 6px; background: transparent; color: var(--blue); font-size: 11px; font-weight: 700; }
-    .table-action:hover { background: var(--blue-soft); }
-    .table-action.is-danger { color: var(--red); }
-    .table-action.is-danger:hover { background: var(--red-soft); }
-
-    .inline-input, .inline-select { width: 100%; height: 34px; padding: 0 8px; border: 1px solid #b9c8df; border-radius: 7px; background: #fff; color: var(--ink); font-size: 12px; }
-    .inline-input:focus, .inline-select:focus { border-color: var(--blue); outline: none; box-shadow: var(--focus); }
-    .inline-actions { display: flex; align-items: center; gap: 4px; }
-
-    .empty-state {
-      display: grid;
-      justify-items: center;
-      padding: 58px 24px;
-      border: 1px dashed #ced8e7;
-      border-radius: var(--radius);
-      background: rgba(255, 255, 255, 0.55);
-      text-align: center;
-    }
-
-    .empty-state.compact { padding: 38px 24px; border: 0; border-radius: 0; background: transparent; }
-    .empty-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px; background: var(--blue-soft); color: var(--blue); font-size: 22px; font-weight: 500; }
-    .empty-state h3 { margin: 14px 0 4px; color: var(--ink-strong); font-size: 14px; font-weight: 730; }
-    .empty-state p { max-width: 340px; margin: 0; color: var(--muted); font-size: 12px; }
-
-    .muted-note { color: var(--muted); font-size: 11px; }
-
-    @media (max-width: 1050px) {
-      .app-shell { grid-template-columns: 210px minmax(0, 1fr); }
-      .main-content { padding-right: 28px; padding-left: 28px; }
-      .content-grid { grid-template-columns: minmax(0, 1fr); }
-      .guidance-card { display: none; }
-      .role-card { grid-template-columns: minmax(170px, 0.58fr) minmax(0, 1.42fr); }
-      .filters-card { grid-template-columns: minmax(180px, 1.35fr) minmax(145px, 0.8fr) minmax(145px, 0.8fr) auto; }
-    }
-
-    @media (max-width: 760px) {
-      .app-shell { display: block; }
-      .sidebar { position: sticky; z-index: 10; top: 0; height: auto; padding: 12px 14px 10px; }
-      .sidebar::after, .sidebar-footer, .nav-label { display: none; }
-      .brand { padding: 0 4px; }
-      .nav-list { display: flex; gap: 5px; margin-top: 11px; }
-      .nav-button { flex: 1; justify-content: center; min-height: 38px; padding: 0 8px; }
-      .nav-button.is-active::before { left: 10px; bottom: -10px; width: calc(100% - 20px); height: 3px; border-radius: 3px 3px 0 0; }
-      .nav-button span:last-child { font-size: 12px; }
-      .main-content { padding: 24px 16px 36px; }
-      .topbar { margin-bottom: 23px; }
-      .account-area { gap: 6px; }
-      .account-email { display: none; }
-      .sync-badge { padding: 7px 9px; font-size: 10px; }
-      .topbar h1 { font-size: 25px; }
-      .page-heading { align-items: flex-start; margin-bottom: 16px; }
-      .heading-mark { display: none; }
-      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
-      .metric-card { min-height: 92px; padding: 14px; }
-      .metric-value { font-size: 25px; }
-      .form-card { padding: 18px 16px; }
-      .field-grid { grid-template-columns: 1fr; gap: 16px; }
-      .field.is-full { grid-column: auto; }
-      .form-footer { align-items: flex-start; flex-direction: column; }
-      .primary-button { width: 100%; }
-      .recent-header, .table-header { padding: 15px 16px; }
-      .recent-item { grid-template-columns: minmax(0, 1fr) auto; gap: 9px; padding: 13px 16px; }
-      .recent-item .status-badge { grid-column: 2; grid-row: 1 / span 2; }
-      .recent-time { grid-column: 1; }
-      .search-card { padding: 15px 16px; margin-bottom: 14px; }
-      .role-card { grid-template-columns: 1fr; gap: 14px; padding: 16px; }
-      .state-actions-label { margin-bottom: 7px; }
-      .state-buttons { gap: 5px; }
-      .state-button { flex: 1 0 auto; min-height: 30px; }
-      .filters-card { grid-template-columns: 1fr; align-items: stretch; padding: 15px 16px; }
-      .filter-clear { justify-self: start; padding: 0; }
-      .table-header { align-items: flex-start; }
-      .table-meta { align-items: flex-end; flex-direction: column; gap: 1px; }
-      .toast-root { right: 16px; bottom: 16px; }
-      .auth-card { padding: 23px 20px; }
-      .migration-banner { align-items: flex-start; flex-direction: column; gap: 11px; }
-      .migration-actions { width: 100%; }
-      .migration-actions .primary-button, .migration-actions .text-button { flex: 1; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
-    }
-  </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f5f5f7" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="投递台账" />
+  <meta name="description" content="记录求职投递，跟进面试进度，按公司查找校园招聘入口。手机和电脑同步使用。" />
+  <title>求职投递台账</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23007aff'/%3E%3Cpath d='M23 23v-5h18v5M15 25h34v26H15zM15 34h34M28 32v5h8v-5' fill='none' stroke='white' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <style>:root{color-scheme:light;--canvas:#f5f5f7;--surface:#fff;--ink:#1d1d1f;--secondary:#6e6e73;--tertiary:#86868b;--line:#e8e8ed;--blue:#007aff;--blue-dark:#0063cf;--blue-soft:#eaf3ff;--green:#248a3d;--green-soft:#e9f6ed;--amber:#a05a00;--amber-soft:#fff3dd;--red:#d52a25;--red-soft:#fff0ef;--purple:#7555b7;--purple-soft:#f2edfb;--radius:22px;--shadow:0 2px 8px #1d1d1f04,0 12px 35px #1d1d1f03;--focus:0 0 0 4px #007aff24;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink);font-size:14px;line-height:1.6;font-synthesis:none}
+*{box-sizing:border-box}body{margin:0;background:var(--canvas);-webkit-font-smoothing:antialiased}button,input,select,textarea{font:inherit}button,a,input,select,textarea{-webkit-tap-highlight-color:transparent}button{cursor:pointer}button:disabled{cursor:wait;opacity:.55}button,a{touch-action:manipulation}a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}button:focus-visible,a:focus-visible{outline:3px solid #007aff80;outline-offset:3px}[hidden]{display:none!important}h1,h2,h3,h4,p{margin-top:0}svg{display:block;width:22px;height:22px;flex-shrink:0}button svg{pointer-events:none}input,textarea{min-width:0}button{border:0}::selection{background:#007aff24}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.app-shell{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:100dvh}.sidebar{position:sticky;top:0;display:flex;flex-direction:column;height:100dvh;padding:34px 18px 20px;border-right:1px solid #e5e5e9;background:#ededf180}.brand{display:flex;gap:12px;align-items:center;padding:0 10px}.brand-mark{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:var(--blue);color:white;box-shadow:0 5px 12px #007aff17}.brand-mark svg{width:23px;height:23px}.brand-name{font-size:17px;font-weight:700;letter-spacing:-.7px}.brand-subtitle{display:block;font-size:10px;color:var(--secondary);letter-spacing:.06em}.nav-label{font-size:11px;color:var(--tertiary);padding:44px 14px 12px}.nav-list{display:grid;gap:7px}.nav-button{display:flex;align-items:center;gap:12px;padding:14px 17px;min-height:50px;border-radius:14px;background:transparent;color:var(--secondary);font-weight:550;text-align:left;transition:background .2s,color .2s,transform .2s}.nav-button:hover{background:#e4e4e9}.nav-button:active{transform:scale(.98)}.nav-button.is-active{color:var(--blue);background:#fff;box-shadow:0 2px 8px #00000005}.nav-button.is-active .nav-icon{color:var(--blue)}.nav-icon{color:#929299}.nav-button span:last-child{flex:1}.nav-count{min-width:24px;padding:0 6px;border-radius:7px;background:#007aff0c;font-size:11px;font-weight:650;text-align:center}.sidebar-note{margin:32px 14px 0;font-size:12px;color:var(--tertiary);line-height:1.9}.sidebar-footer{margin-top:auto;padding-top:40px}.profile-card{width:100%;padding:14px 12px;display:flex;gap:10px;align-items:center;text-align:left;border-radius:18px;background:#ffffffb3;box-shadow:0 1px 4px #00000003;transition:background .2s}.profile-card:hover{background:white}.avatar{display:grid;place-items:center;width:40px;height:40px;flex-shrink:0;border-radius:50%;background:#deebfc;color:#2765ac;font-size:16px;font-weight:650}.profile-copy{min-width:0;flex:1}.profile-name{display:block;font-size:13px;font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.account-email{display:block;font-size:11px;color:var(--secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.profile-chevron{color:#b4b4ba;font-size:20px}.sync-row{display:flex;align-items:center;justify-content:space-between;padding:11px 13px 0}.sync-badge{display:flex;align-items:center;gap:6px;color:var(--secondary);font-size:10px}.sync-badge::before{content:"";width:5px;height:5px;border-radius:50%;background:#34c759}.sync-badge.is-busy::before{background:var(--blue);animation:breathe 1s infinite}.sync-badge.is-error::before{background:var(--red)}.version{font-size:10px;color:var(--tertiary)}
+.main-content{min-width:0;width:100%;max-width:1320px;padding:42px 48px 64px;margin:0 auto}.topbar{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:27px}.eyebrow{display:block;margin-bottom:8px;color:var(--secondary);font-size:12px;font-weight:500}.topbar h1{margin:0;font-size:32px;font-weight:700;line-height:1.25;letter-spacing:-1.3px;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}.topbar-subtitle{font-size:13px;margin:10px 0 0;color:var(--secondary)}.topbar-actions{display:flex;gap:10px;align-items:center}.icon-button{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:#fff;color:var(--secondary);border:1px solid var(--line);transition:transform .15s}.icon-button:hover{color:var(--blue)}.icon-button:active{transform:scale(.94)}.mobile-profile{display:none}.view{animation:appear .25s ease}.metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:26px}.metric-card{position:relative;min-width:0;min-height:121px;padding:20px 23px;background:var(--surface);border-radius:20px;box-shadow:var(--shadow)}.metric-label{display:flex;align-items:center;gap:7px;color:var(--secondary);font-size:12px}.metric-label::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--blue)}.is-teal .metric-label::before{background:#34c759}.is-amber .metric-label::before{background:#ff9f0a}.is-red .metric-label::before{background:#b5b5bd}.metric-value{display:block;font-size:35px;line-height:1.2;letter-spacing:-1px;font-weight:650;font-variant-numeric:tabular-nums;margin-top:11px}.metric-unit{font-size:11px;color:var(--tertiary);position:absolute;right:23px;bottom:22px}.content-grid{display:grid;grid-template-columns:minmax(0,1fr) 268px;gap:22px;align-items:start}.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow)}.form-card{padding:27px 28px}.card-title-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:27px}.card-title-row h3,.search-heading h3{font-size:17px;letter-spacing:-.4px;margin:0;font-weight:650}.card-title-row p{font-size:12px;color:var(--secondary);margin:5px 0 0}.mini-badge{display:flex;align-items:center;gap:6px;color:var(--tertiary);font-size:11px}.mini-badge svg{width:15px;height:15px}.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px 18px}.field{min-width:0}.field.is-full{grid-column:1/-1}.field-label,.filter-label{display:block;margin-bottom:8px;font-size:13px;font-weight:600}.required{color:var(--blue);font-size:11px}.optional{font-size:11px;font-weight:400;color:var(--tertiary);margin-left:4px}.input,.select,.textarea{width:100%;border:1px solid #e7e7ed;border-radius:12px;background:#fafafc;color:var(--ink);padding:11px 14px;outline:none;transition:border-color .2s,box-shadow .2s,background .2s;min-height:46px;font-size:14px}.select{cursor:pointer;padding-right:30px}.textarea{min-height:126px;resize:vertical;line-height:1.85}.input:focus,.textarea:focus,.select:focus{border-color:#007aff80;background:white;box-shadow:var(--focus)}.input::placeholder,.textarea::placeholder{color:#97979e}.input[aria-invalid=true],.textarea[aria-invalid=true]{border-color:var(--red)}.field-hint{display:block;margin-top:7px;font-size:11px;color:var(--tertiary)}.form-footer{display:flex;justify-content:space-between;align-items:center;gap:15px;border-top:1px solid var(--line);padding-top:21px;margin-top:26px}.form-footnote{color:var(--tertiary);font-size:11px}.primary-button,.secondary-button,.danger-button,.text-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:10px 19px;border-radius:12px;font-size:13px;font-weight:600;transition:background .18s,transform .18s}.primary-button{background:var(--blue);color:white;box-shadow:0 3px 6px #007aff12}.primary-button:hover{background:var(--blue-dark)}.primary-button:active,.secondary-button:active,.danger-button:active{transform:scale(.98)}.primary-button svg{width:17px;height:17px}.secondary-button{background:#f0f0f5;color:var(--ink)}.secondary-button:hover{background:#e8e8ee}.text-button{padding:8px 10px;background:transparent;color:var(--blue)}.text-button:hover{background:var(--blue-soft)}.danger-button{background:var(--red-soft);color:var(--red)}
+.guidance-card{padding:24px}.card-kicker{font-size:13px;font-weight:650;margin-bottom:24px}.journey{list-style:none;margin:0;padding:0;display:grid;gap:19px}.journey li{position:relative;display:flex;align-items:center;gap:12px;color:var(--secondary);font-size:12px}.journey li:not(:last-child)::after{content:"";position:absolute;left:9px;top:23px;width:1px;height:16px;background:var(--line)}.journey-dot{display:grid;place-items:center;width:19px;height:19px;border:1.5px solid #dcdce2;border-radius:50%;color:#a1a1a7;font-size:10px}.journey li:first-child{color:var(--blue);font-weight:600}.journey li:first-child .journey-dot{background:var(--blue);color:#fff;border-color:var(--blue)}.journey li:nth-child(6) .journey-dot{border-color:#e9be76;background:var(--amber-soft);color:var(--amber)}.journey small{font-size:11px;margin-left:auto;color:var(--tertiary);font-variant-numeric:tabular-nums}.journey-tip{border-top:1px solid var(--line);padding-top:17px;margin:23px 0 0;color:var(--tertiary);font-size:11px;line-height:1.8}.aside-note{margin:16px 10px;font-size:11px;color:var(--tertiary);line-height:1.8}.aside-note strong{color:var(--secondary);display:block;font-weight:550;margin-bottom:3px}.recent-card{margin-top:24px;overflow:hidden}.recent-header,.table-header{display:flex;justify-content:space-between;align-items:center;padding:20px 25px;border-bottom:1px solid var(--line);gap:12px}.recent-header h3,.table-header h3{font-size:15px;font-weight:650;margin:0}.recent-header span,.table-meta{font-size:11px;color:var(--tertiary)}.table-meta strong{font-weight:500}.table-meta{display:flex;gap:12px}.recent-item{display:grid;grid-template-columns:36px minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:15px 25px;border-bottom:1px solid var(--line)}.recent-item:last-child{border:0}.company-avatar{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:#f2f4f8;color:#526684;font-weight:650;font-size:13px}.recent-main{min-width:0}.recent-company{display:block;font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.recent-role{display:block;font-size:12px;color:var(--secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.recent-time{font-size:11px;color:var(--tertiary);font-variant-numeric:tabular-nums}.empty-inline{padding:32px;text-align:center;font-size:13px;color:var(--tertiary)}.status-badge{display:inline-flex;align-items:center;min-height:27px;padding:3px 9px;border-radius:8px;font-size:11px;font-weight:550;white-space:nowrap}.status-applied{background:var(--blue-soft);color:var(--blue-dark)}.status-test{background:#edf1fd;color:#4c61a9}.status-interview{background:var(--purple-soft);color:var(--purple)}.status-offer{background:var(--amber-soft);color:var(--amber)}.status-closed{background:#f0f0f3;color:var(--secondary)}
+.campus-preview{padding:14px 16px;border-radius:14px;background:#f5f8ff;display:flex;align-items:center;gap:12px;font-size:12px;min-height:70px}.preview-symbol{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#e8f1ff;color:var(--blue);flex-shrink:0}.preview-symbol svg{width:19px;height:19px}.preview-copy{min-width:0;flex:1}.preview-copy strong{display:block;font-size:12px;font-weight:600}.preview-copy p{margin:3px 0 0;font-size:11px;color:var(--secondary);overflow-wrap:anywhere}.preview-actions{display:flex;gap:4px;align-items:center}.preview-actions button,.preview-actions a{white-space:nowrap;font-size:11px;min-height:36px;display:flex;align-items:center;padding:4px 7px;color:var(--blue);background:transparent;border-radius:8px}.company-suggestions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.suggestion{background:#f0f5fc;color:#42658f;font-size:11px;padding:5px 9px;border-radius:7px;min-height:30px}.suggestion:hover{background:var(--blue-soft)}.search-card{padding:22px 25px;margin-bottom:20px}.search-label{display:block;font-weight:600;margin-bottom:8px}.search-helper{font-size:12px;color:var(--secondary);margin:9px 0 0}.search-box{position:relative}.search-box .input{padding-left:40px}.search-box svg{position:absolute;left:13px;top:13px;width:19px;height:19px;color:var(--tertiary)}.company-card{overflow:hidden;margin-bottom:20px}.company-card-header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid var(--line);gap:10px}.company-card-header h3{font-size:16px;margin:0;font-weight:650}.company-card-header p,.company-count{font-size:11px;color:var(--secondary);margin:3px 0 0}.role-card{display:grid;grid-template-columns:minmax(180px,1fr) 1.5fr;gap:30px;padding:22px 24px;border-bottom:1px solid var(--line)}.role-card:last-child{border-bottom:0}.role-summary h4{font-size:14px;font-weight:600;margin:0 0 8px;overflow-wrap:anywhere}.role-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;color:var(--tertiary);font-size:11px}.role-website{margin-top:12px}.state-actions-label{display:block;font-size:11px;color:var(--secondary);margin-bottom:9px}.state-buttons{display:flex;gap:7px;flex-wrap:wrap}.state-button{min-height:36px;padding:6px 12px;background:#f4f4f7;border-radius:9px;color:var(--secondary);font-size:11px;transition:background .2s,transform .2s}.state-button:hover{background:#e9e9ef}.state-button.is-current{background:var(--blue);color:#fff}.state-button:active{transform:scale(.97)}.empty-state{display:grid;justify-items:center;text-align:center;padding:54px 24px;border-radius:var(--radius);background:#fff}.empty-state h3{font-size:15px;margin:16px 0 6px;font-weight:600}.empty-state p{max-width:360px;font-size:12px;color:var(--secondary);margin:0}.empty-icon{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:var(--blue-soft);color:var(--blue)}.empty-state .text-button{margin-top:12px}.compact{padding:40px 20px}
+.discovery-card{padding:21px 24px;margin-bottom:22px}.search-heading{display:flex;align-items:center;gap:11px;margin-bottom:17px}.search-heading>svg{width:23px;height:23px;color:var(--blue)}.search-heading p{margin:3px 0 0;font-size:12px;color:var(--secondary)}.discovery-form{display:flex;gap:10px}.discovery-form .input{flex:1}.discovery-form .primary-button{white-space:nowrap}.discovery-result{margin-top:14px}.discovery-result:empty{display:none}.directory-count{margin-left:auto;color:var(--tertiary);font-size:11px;white-space:nowrap}.filters-card{display:grid;grid-template-columns:minmax(190px,1.6fr) 1fr 1fr auto;align-items:end;gap:13px;padding:19px 23px;margin-bottom:16px}.filter-label{font-size:11px;color:var(--secondary);font-weight:500;margin-bottom:6px}.filters-card .input,.filters-card .select{font-size:12px;min-height:41px}.filter-clear{font-size:11px;padding:8px}.table-card{overflow:hidden}.table-wrap{overflow-x:auto}table{width:100%;min-width:800px;border-collapse:collapse;table-layout:auto}th{text-align:left;padding:12px 17px;background:#fafafb;color:var(--tertiary);font-size:11px;font-weight:500;white-space:nowrap}td{padding:16px 17px;border-bottom:1px solid var(--line);vertical-align:middle;font-size:12px;color:var(--secondary)}tbody tr:last-child td{border-bottom:0}tbody tr:hover{background:#fcfcfd}.company-cell{font-size:13px;font-weight:600;color:var(--ink);display:block;max-width:150px;overflow-wrap:anywhere}.role-cell{display:block;max-width:170px;color:var(--ink);overflow-wrap:anywhere}.time-cell{font-size:11px;font-variant-numeric:tabular-nums;white-space:nowrap}.table-actions{display:flex;align-items:center;gap:4px;white-space:nowrap}.table-action{min-height:36px;padding:5px 8px;background:transparent;color:var(--blue);font-size:11px;border-radius:8px}.table-action:hover{background:var(--blue-soft)}.table-action.is-danger{color:var(--red)}.table-action.is-danger:hover{background:var(--red-soft)}.website-link{display:inline-flex;align-items:center;gap:4px;min-height:32px;font-size:12px;white-space:nowrap}.website-link svg{width:13px;height:13px}.website-state{font-size:11px;color:var(--tertiary)}.website-retry{display:block;font-size:11px;color:var(--blue);background:transparent;padding:5px 0;min-height:32px}.website-loading{font-size:11px;color:var(--tertiary)}.website-source{display:block;color:var(--tertiary);font-size:9px;margin-top:0}.mobile-records{display:none}.candidate-list{display:grid;gap:10px;margin:15px 0}.candidate{padding:14px;border:1px solid var(--line);border-radius:14px}.candidate strong{font-size:13px;display:block}.candidate-url{font-size:11px;color:var(--secondary);overflow-wrap:anywhere;margin:3px 0 8px}.candidate .text-button{font-size:12px;min-height:38px;padding:6px 10px;background:var(--blue-soft)}.candidate-links{display:flex;align-items:center;gap:10px;font-size:12px}.search-fallbacks{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;margin-top:15px}.search-fallbacks a{min-height:35px;display:flex;align-items:center}.lookup-help{font-size:12px;color:var(--secondary);line-height:1.8;margin:8px 0}.lookup-manual{margin-top:20px;border-top:1px solid var(--line);padding-top:19px}.lookup-manual .field-label{font-size:12px}.lookup-manual .discovery-form{margin-top:9px}.lookup-manual .input{font-size:13px}.lookup-note{font-size:11px;color:var(--tertiary);margin-top:10px}
+.auth-screen{min-height:100dvh;display:grid;place-items:center;padding:45px 24px}.auth-shell{width:min(100%,430px)}.auth-brand{display:flex;align-items:center;justify-content:center;gap:11px;margin-bottom:30px}.auth-brand-copy strong{font-size:17px;font-weight:650;display:block}.auth-brand-copy span{display:block;font-size:10px;color:var(--tertiary);letter-spacing:.04em}.auth-card{padding:34px 32px;background:#fff;border-radius:28px;box-shadow:0 18px 60px #1d1d1f06}.auth-card h1{font-size:26px;letter-spacing:-1px;font-weight:700;margin-bottom:9px}.auth-card>p{font-size:13px;line-height:1.8;color:var(--secondary);margin-bottom:25px}.auth-form{display:grid;gap:19px}.auth-form .input{font-size:16px}.auth-submit{width:100%;margin-top:8px;min-height:47px}.auth-actions{display:flex;justify-content:space-between;gap:12px;margin-top:22px}.auth-link{color:var(--blue);font-size:12px;background:transparent;padding:4px 0;min-height:32px}.auth-message{font-size:12px;color:var(--secondary);margin:16px 0 0;line-height:1.7}.auth-message:empty{display:none}.auth-message.is-error{color:var(--red)}.auth-message.is-success{color:var(--green)}.auth-footnote{display:flex;align-items:flex-start;gap:7px;font-size:11px;color:var(--tertiary);margin:24px 0 0;line-height:1.8;padding-top:21px;border-top:1px solid var(--line)}.auth-footnote svg{width:14px;height:14px;margin-top:3px}.password-field{position:relative}.password-field .input{padding-right:48px}.password-toggle{position:absolute;right:5px;top:3px;display:grid;place-items:center;width:40px;height:40px;background:transparent;color:var(--tertiary);border-radius:9px}.password-toggle svg{width:19px;height:19px}.auth-resend{margin-top:9px;display:block}.auth-back{display:block;text-align:center;margin:18px auto 0}.migration-banner{display:flex;justify-content:space-between;align-items:center;gap:18px;border:1px solid #d7e8fb;background:#edf5ff;border-radius:18px;padding:16px 20px;margin-bottom:22px}.migration-copy strong{display:block;font-size:13px}.migration-copy span{font-size:11px;color:var(--secondary)}.migration-actions{display:flex;gap:8px;flex-shrink:0}.migration-actions button{font-size:11px;min-height:36px}
+dialog{border:0;border-radius:26px;padding:0;width:min(480px,calc(100% - 32px));max-height:calc(100dvh - 48px);background:#fff;color:var(--ink);box-shadow:0 25px 90px #00000025;overflow:auto;overscroll-behavior:contain}dialog::backdrop{background:#1717264a;backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}dialog[open]{animation:appear .2s ease}.dialog-header{position:sticky;top:0;z-index:2;background:#ffffffed;backdrop-filter:blur(14px);display:flex;justify-content:space-between;align-items:center;gap:15px;padding:23px 26px 17px;border-bottom:1px solid var(--line)}.dialog-header h2{margin:0;font-size:19px;font-weight:650;letter-spacing:-.5px}.dialog-close{background:#f1f1f4;border:0;color:var(--secondary);width:30px;height:30px;font-size:23px;font-weight:300;display:grid;place-items:center;border-radius:50%;line-height:1}.dialog-content{padding:24px 26px}.dialog-content .field-grid{gap:17px}.dialog-content .input,.dialog-content .select{font-size:16px}.dialog-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:25px}.profile-identity{display:flex;align-items:center;gap:14px;margin-bottom:27px}.profile-identity .avatar{width:55px;height:55px;font-size:23px}.profile-identity strong{font-size:16px;display:block}.profile-identity p{font-size:12px;color:var(--secondary);margin:3px 0 0;overflow-wrap:anywhere}.account-detail{padding:15px 0;border-bottom:1px solid var(--line);font-size:12px;display:flex;justify-content:space-between;gap:15px}.account-detail span{color:var(--secondary)}.account-detail strong{font-weight:500;overflow-wrap:anywhere;max-width:75%;text-align:right}.profile-save{margin-top:18px;width:100%}.profile-signout{margin-top:22px;width:100%;background:#f5f5f7}.dialog-message{font-size:12px;margin:12px 0 0;color:var(--red)}.dialog-message:empty{display:none}.dialog-message.is-success{color:var(--green)}.delete-description{font-size:14px;line-height:1.8;margin:0;overflow-wrap:anywhere}.toast-root{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:100;pointer-events:none;width:max-content;max-width:calc(100% - 32px)}.toast{display:flex;align-items:center;gap:9px;padding:12px 20px;background:#242427ed;backdrop-filter:blur(14px);color:white;border-radius:16px;box-shadow:0 6px 30px #00000012;font-size:13px;animation:toast-in .22s ease}.toast-icon{display:grid;place-items:center;width:19px;height:19px;border-radius:50%;background:#34c759;color:#fff;font-size:12px;flex-shrink:0}.toast.is-error .toast-icon{background:#ff453a}.loading-spinner{display:inline-block;width:14px;height:14px;border:1.5px solid #c2dcfb;border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}.loading-row{display:flex;align-items:center;gap:9px;color:var(--secondary);font-size:12px;padding:12px 0}.privacy-note{font-size:11px;color:var(--tertiary);line-height:1.7}.no-overflow{overflow-wrap:anywhere}.muted-note{font-size:11px;color:var(--secondary)}
+@keyframes spin{to{transform:rotate(360deg)}}@keyframes breathe{50%{opacity:.3}}@keyframes appear{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}@keyframes toast-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media(min-width:1450px){.main-content{padding-left:60px;padding-right:60px}.content-grid{grid-template-columns:minmax(0,1fr) 285px}}
+@media(max-width:1180px){.app-shell{grid-template-columns:215px minmax(0,1fr)}.sidebar{padding:28px 14px 18px}.main-content{padding:34px 28px 50px}.content-grid{grid-template-columns:minmax(0,1fr) 230px;gap:18px}.form-card{padding:24px}.guidance-card{padding:22px}.metric-card{padding:18px}.metric-unit{right:18px}.filters-card{grid-template-columns:minmax(150px,1.4fr) 1fr 1fr}.filter-clear{grid-column:1/-1;justify-self:start;padding:0;min-height:28px}.directory-count{display:none}}
+@media(max-width:1000px){.content-grid{grid-template-columns:1fr}.guidance-wrap{display:none}.role-card{grid-template-columns:1fr;gap:17px}.topbar h1{font-size:29px}.metric-grid{gap:10px}.metric-card{min-height:110px;padding:16px}.metric-unit{right:16px;bottom:18px}.metric-value{font-size:31px}}
+@media(max-width:760px){.app-shell{display:block}.sidebar{position:fixed;top:auto;bottom:0;left:0;right:0;z-index:30;height:auto;padding:8px 15px calc(8px + env(safe-area-inset-bottom));border:0;border-top:1px solid #d4d4dd80;background:#f8f8fbd9;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}.sidebar>.brand,.nav-label,.sidebar-note,.sidebar-footer{display:none}.nav-list{display:flex;gap:8px;max-width:500px;width:100%;margin:auto}.nav-button{display:flex;flex-direction:column;flex:1;gap:3px;min-height:53px;padding:5px 8px;border-radius:13px;justify-content:center;font-size:10px;line-height:1.5;font-weight:500}.nav-button span:last-child{flex:none}.nav-icon svg{width:23px;height:23px}.nav-button.is-active{background:#e5effdb3;box-shadow:none}.nav-button:hover{background:#e8e8ee80}.nav-count{display:none}.main-content{padding:28px 20px calc(112px + env(safe-area-inset-bottom));max-width:650px}.topbar{margin-bottom:24px;gap:10px;align-items:flex-start}.topbar h1{font-size:29px;letter-spacing:-1px}.eyebrow{font-size:11px;margin-bottom:7px}.topbar-subtitle{font-size:12px;line-height:1.8;margin-top:9px;max-width:290px}.topbar-actions{padding-top:19px}.topbar-actions>.icon-button{display:none}.mobile-profile{display:grid;border:1px solid #d9e5f5;width:38px;height:38px;font-size:14px}.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-bottom:20px}.metric-card{padding:17px 19px;border-radius:18px;min-height:111px}.metric-value{font-size:32px;margin-top:9px}.metric-label{font-size:11px}.metric-unit{right:19px;bottom:19px}.form-card{padding:23px 20px;border-radius:22px}.card-title-row{margin-bottom:23px}.card-title-row h3{font-size:16px}.card-title-row p{font-size:11px}.mini-badge{font-size:10px}.mini-badge svg{width:13px;height:13px}.field-grid{grid-template-columns:1fr;gap:21px}.field.is-full{grid-column:auto}.input,.select,.textarea{font-size:16px;min-height:48px;border-radius:12px}.field-label{font-size:13px}.field-hint{font-size:11px}.form-footer{flex-direction:column;align-items:stretch;padding-top:18px;margin-top:23px;gap:13px}.form-footnote{text-align:center;order:2}.form-footer .primary-button{min-height:48px;width:100%;font-size:14px}.textarea{min-height:133px}.campus-preview{flex-wrap:wrap;gap:10px;padding:13px}.preview-copy{min-width:160px}.preview-actions{margin-left:43px;margin-top:-5px}.preview-actions button,.preview-actions a{padding:2px 6px}.company-suggestions{gap:5px}.suggestion{min-height:34px}.recent-card{margin-top:20px}.recent-header,.table-header{padding:18px 20px}.recent-header h3,.table-header h3{font-size:14px}.recent-item{grid-template-columns:34px minmax(0,1fr) auto;gap:10px;padding:15px 20px}.recent-time{display:none}.recent-company{font-size:12px}.recent-role{font-size:11px}.status-badge{font-size:10px;padding:3px 8px}.search-card{padding:20px}.search-helper{font-size:11px}.search-box svg{top:15px}.role-card{padding:20px}.company-card-header{padding:19px 20px}.state-button{min-height:43px;padding:8px 12px;font-size:11px}.state-buttons{gap:8px}.company-card{border-radius:20px}.role-meta{font-size:10px}.role-website .website-link{min-height:40px}.discovery-card{padding:21px 20px}.search-heading{gap:10px;margin-bottom:17px;align-items:flex-start}.search-heading h3{font-size:15px}.search-heading p{font-size:11px;line-height:1.8}.search-heading>svg{width:21px;height:21px;margin-top:3px}.discovery-form .input{min-width:0;font-size:16px}.discovery-form{gap:8px}.discovery-form .primary-button{padding:10px 14px;min-height:48px;font-size:13px}.filters-card{grid-template-columns:1fr 1fr;gap:14px 12px;padding:18px 20px}.filters-card .filter-field:first-child{grid-column:1/-1}.filters-card .input,.filters-card .select{font-size:16px;min-height:45px}.filter-clear{grid-column:1/-1;justify-self:end;font-size:12px;min-height:28px}.table-wrap{display:none}.table-card{background:transparent;box-shadow:none;overflow:visible}.table-header{padding:6px 2px 14px;border:0}.table-meta{font-size:10px;display:block;text-align:right}.table-meta strong,.table-meta span{display:block}.mobile-records{display:grid;gap:13px}.mobile-record{background:white;padding:20px;border-radius:20px;box-shadow:var(--shadow)}.mobile-record-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}.mobile-record-top h3{font-size:15px;font-weight:650;margin:0;overflow-wrap:anywhere}.mobile-record-title{font-size:13px;line-height:1.8;margin:8px 0 14px;color:var(--secondary);overflow-wrap:anywhere}.mobile-record-meta{display:flex;align-items:center;gap:9px;font-size:11px;color:var(--tertiary);padding-bottom:14px;border-bottom:1px solid var(--line)}.mobile-record-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:12px}.mobile-record-bottom .table-action{min-height:42px;padding:7px 10px;font-size:12px}.mobile-record-bottom .website-link{min-height:42px}.mobile-record-bottom .website-retry{min-height:36px}.mobile-record-bottom .website-source{display:none}.mobile-records .empty-state{padding:40px 20px}.auth-screen{padding:35px 20px;align-items:center}.auth-brand{margin-bottom:24px}.auth-card{padding:29px 25px;border-radius:25px}.auth-card h1{font-size:25px}.auth-card>p{font-size:12px}.auth-form .input{min-height:49px}.auth-link{min-height:40px}.auth-footnote{margin-top:19px;font-size:10px}.migration-banner{align-items:stretch;flex-direction:column;padding:18px}.migration-actions{justify-content:flex-end}.toast-root{bottom:calc(92px + env(safe-area-inset-bottom));max-width:calc(100% - 32px)}.toast{font-size:12px;padding:12px 16px}.dialog-header{padding:22px 23px 17px}.dialog-content{padding:22px 23px}.dialog-close{width:36px;height:36px}.dialog-footer .primary-button,.dialog-footer .secondary-button,.dialog-footer .danger-button{flex:1;min-height:48px}dialog{width:100%;max-width:520px;margin:auto auto 0;border-radius:26px 26px 0 0;max-height:calc(100dvh - 24px);padding-bottom:env(safe-area-inset-bottom)}dialog[open]{animation:sheet-in .25s ease}.dialog-content .field-grid{gap:18px}.lookup-manual .discovery-form{flex-direction:column}.lookup-manual .input{font-size:16px}.profile-save,.profile-signout{min-height:48px}.search-fallbacks{gap:10px}.search-fallbacks a{min-height:44px}.candidate .text-button{min-height:44px}.candidate-links>a{min-height:44px;display:flex;align-items:center}.search-help-top{font-size:12px}.topbar-left{min-width:0}}
+@media(max-width:360px){.main-content{padding-left:14px;padding-right:14px}.topbar h1{font-size:26px}.form-card{padding:21px 17px}.metric-card{padding:15px 16px}.metric-grid{gap:9px}.auth-card{padding:27px 21px}.preview-copy{min-width:130px}.mobile-record{padding:18px}.discovery-form .primary-button{padding:10px 11px}}
+@media(max-width:760px){#view-summary>.metric-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}#view-summary .metric-card{min-height:88px;padding:12px 10px;border-radius:15px}#view-summary .metric-label{font-size:9px;gap:4px;white-space:nowrap}#view-summary .metric-label::before{width:4px;height:4px}#view-summary .metric-value{font-size:27px;margin-top:10px}#view-summary .metric-unit{display:none}.filters-card .filter-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.filters-card{gap:10px;padding:17px}.filters-card .filter-clear{min-height:26px}.discovery-card{margin-bottom:17px}.discovery-result .campus-preview{background:#f6f8fc}.mobile-records .status-badge{font-size:10px}}
+@keyframes sheet-in{from{opacity:0;transform:translateY(35px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+</style>
 </head>
 <body>
-  <section class="auth-screen" id="auth-screen" aria-labelledby="auth-title">
-    <div class="auth-shell">
-      <div class="auth-brand">
-        <span class="brand-mark" aria-hidden="true">投</span>
-        <div class="auth-brand-copy"><strong>求职投递台账</strong><span>Application Desk · Cloud</span></div>
-      </div>
-      <div class="auth-card">
-        <h1 id="auth-title">登录你的投递台账</h1>
-        <p id="auth-subtitle">登录后，手机和电脑都可以查看同一份记录。</p>
-        <form class="auth-form" id="auth-form" novalidate>
-          <div class="field">
-            <label class="field-label" for="auth-email">邮箱</label>
-            <input class="input" id="auth-email" type="email" autocomplete="email" placeholder="you@example.com" required />
-          </div>
-          <div class="field">
-            <label class="field-label" for="auth-password">密码</label>
-            <input class="input" id="auth-password" type="password" autocomplete="current-password" minlength="6" placeholder="至少 6 位" required />
-          </div>
-          <button class="primary-button auth-submit" id="auth-submit" type="submit">登录</button>
-        </form>
-        <form class="auth-form" id="recovery-form" hidden novalidate>
-          <div class="field">
-            <label class="field-label" for="recovery-password">新密码</label>
-            <input class="input" id="recovery-password" type="password" autocomplete="new-password" minlength="6" placeholder="至少 6 位" required />
-          </div>
-          <div class="field">
-            <label class="field-label" for="recovery-confirm">确认新密码</label>
-            <input class="input" id="recovery-confirm" type="password" autocomplete="new-password" minlength="6" placeholder="再次输入新密码" required />
-          </div>
-          <button class="primary-button auth-submit" id="recovery-submit" type="submit">更新密码</button>
-        </form>
-        <div class="auth-actions">
-          <button class="auth-link" id="auth-mode-toggle" type="button">还没有账号？注册</button>
-          <button class="auth-link" id="auth-reset" type="button">忘记密码</button>
-        </div>
-        <p class="auth-message" id="auth-message" aria-live="polite"></p>
-        <div class="auth-footnote">数据按账号隔离保存到云端。网页只使用公开的项目连接信息，不会把密码写入投递记录。</div>
-      </div>
+<section class="auth-screen" id="auth-screen" aria-labelledby="auth-title">
+  <div class="auth-shell">
+    <div class="auth-brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="3"/><path d="M8 7V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v3M3 12a24 24 0 0 0 18 0M10 12v3h4v-3"/></svg></span><div class="auth-brand-copy"><strong>求职投递台账</strong><span>CAREER APPLICATIONS</span></div></div>
+    <div class="auth-card">
+      <h1 id="auth-title">欢迎回来</h1><p id="auth-subtitle">登录你的账号，接着跟进每一次投递。</p>
+      <form class="auth-form" id="auth-form" novalidate>
+        <div class="field" id="signup-name-field" hidden><label class="field-label" for="auth-username">用户名<span class="optional">用于显示称呼</span></label><input class="input" id="auth-username" maxlength="24" autocomplete="nickname" placeholder="希望怎么称呼你" /></div>
+        <div class="field"><label class="field-label" for="auth-email">邮箱</label><input class="input" id="auth-email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="you@example.com" required /></div>
+        <div class="field"><label class="field-label" for="auth-password">密码</label><div class="password-field"><input class="input" id="auth-password" type="password" autocomplete="current-password" minlength="6" placeholder="输入你的密码" required /><button class="password-toggle" type="button" data-toggle-password="auth-password" aria-label="显示密码" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+        <button class="primary-button auth-submit" id="auth-submit" type="submit">登录</button>
+      </form>
+      <form class="auth-form" id="recovery-form" hidden novalidate>
+        <div class="field"><label class="field-label" for="recovery-password">新密码</label><input class="input" id="recovery-password" type="password" autocomplete="new-password" minlength="6" placeholder="至少 6 位" required /></div>
+        <div class="field"><label class="field-label" for="recovery-confirm">确认新密码</label><input class="input" id="recovery-confirm" type="password" autocomplete="new-password" minlength="6" placeholder="再次输入新密码" required /></div>
+        <button class="primary-button auth-submit" id="recovery-submit" type="submit">保存新密码</button>
+      </form>
+      <div class="auth-actions"><button class="auth-link" id="auth-mode-toggle" type="button">创建新账号</button><button class="auth-link" id="auth-reset" type="button">忘记密码？</button></div>
+      <p class="auth-message" id="auth-message" role="status"></p><button class="auth-link auth-resend" id="auth-resend" type="button" hidden>重新发送验证邮件</button>
+      <p class="auth-footnote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg><span>投递记录仅自己可见。使用同一邮箱登录，手机和电脑就能查看同一份台账。</span></p>
     </div>
-  </section>
-
-  <div class="app-shell" id="app-shell" hidden>
-    <aside class="sidebar" aria-label="主导航">
-      <div class="brand" aria-label="求职投递台账">
-        <span class="brand-mark" aria-hidden="true">C</span>
-        <span class="brand-copy">
-          <span class="brand-name">求职投递台账</span>
-          <span class="brand-subtitle">Career application desk</span>
-        </span>
-      </div>
-
-      <div class="nav-label">Workspace</div>
-      <nav class="nav-list">
-        <button class="nav-button is-active" type="button" data-view="stats" aria-current="page">
-          <span class="nav-icon" aria-hidden="true">＋</span><span>统计</span>
-        </button>
-        <button class="nav-button" type="button" data-view="status">
-          <span class="nav-icon" aria-hidden="true">↻</span><span>状态修改</span>
-        </button>
-        <button class="nav-button" type="button" data-view="summary">
-          <span class="nav-icon" aria-hidden="true">▤</span><span>汇总</span>
-        </button>
-      </nav>
-
-      <div class="sidebar-footer">
-        <div class="privacy-note"><span class="privacy-dot" aria-hidden="true"></span>投递记录按账号云端同步</div>
-        <div>手机、电脑均可登录 · 查询校招网页时联网 · V1.4</div>
-      </div>
-    </aside>
-
-    <main class="main-content">
-      <header class="topbar">
-        <div class="topbar-left">
-          <span class="eyebrow" id="page-eyebrow">APPLICATION DESK / 01</span>
-          <h1 id="page-title">记录一次新的投递</h1>
-        </div>
-        <div class="account-area">
-          <span class="sync-badge" id="sync-badge">云端同步</span>
-          <span class="account-email" id="account-email"></span>
-          <button class="text-button" id="signout-button" type="button">退出</button>
-        </div>
-      </header>
-
-      <div class="toast-root" id="toast-root" aria-live="polite" aria-atomic="true"></div>
-
-      <div class="migration-banner" id="migration-banner" hidden>
-        <div class="migration-copy"><strong>发现这台设备上的旧记录</strong><span>可以把本机旧数据导入当前账号，之后手机和电脑都能看到。</span></div>
-        <div class="migration-actions"><button class="primary-button" id="migration-import" type="button">导入本机记录</button><button class="text-button" id="migration-dismiss" type="button">暂不导入</button></div>
-      </div>
-
-      <section class="view" id="view-stats">
-        <div class="page-heading">
-          <div>
-            <h2>新增投递</h2>
-            <p>一次填写，多个岗位会自动拆成独立记录。</p>
-          </div>
-          <div class="heading-mark" aria-label="记录工作流"><span></span><span></span><span></span></div>
-        </div>
-
-        <div class="metric-grid" aria-label="投递概览">
-          <article class="metric-card is-blue">
-            <span class="metric-label">总投递数</span>
-            <strong class="metric-value" id="stats-total">0</strong>
-          </article>
-          <article class="metric-card is-teal">
-            <span class="metric-label">进行中</span>
-            <strong class="metric-value" id="stats-progress">0</strong>
-          </article>
-          <article class="metric-card is-amber">
-            <span class="metric-label">等待 Offer</span>
-            <strong class="metric-value" id="stats-offer">0</strong>
-          </article>
-          <article class="metric-card is-red">
-            <span class="metric-label">已结束</span>
-            <strong class="metric-value" id="stats-ended">0</strong>
-          </article>
-        </div>
-
-        <div class="content-grid">
-          <form class="card form-card" id="application-form" novalidate>
-            <div class="card-title-row">
-              <div>
-                <h3>填写投递信息</h3>
-                <p>保存时自动记录当前时间。</p>
-              </div>
-              <span class="mini-badge">NEW ENTRY</span>
-            </div>
-
-            <div class="field-grid">
-              <div class="field">
-                <label class="field-label" for="company-name">公司名称 <span class="required">*</span></label>
-                <input class="input" id="company-name" name="company" type="text" placeholder="例如：小米汽车" autocomplete="organization" required />
-              </div>
-
-              <div class="field">
-                <label class="field-label" for="application-method">投递方式 <span class="required">*</span></label>
-                <select class="select" id="application-method" name="applicationMethod" required>
-                  <option value="" selected disabled>请选择投递方式</option>
-                  <option value="官网">官网</option>
-                  <option value="公众号">公众号</option>
-                  <option value="线下">线下</option>
-                  <option value="其他">其他</option>
-                </select>
-              </div>
-
-              <div class="field is-full">
-                <label class="field-label" for="job-titles">岗位名称 <span class="required">*</span></label>
-                <textarea class="textarea" id="job-titles" name="jobs" rows="5" placeholder="机械架构 SIE 工程师&#10;产品经理&#10;项目管理" required></textarea>
-                <span class="field-hint">每行一个岗位，保存后会生成一条独立记录。</span>
-              </div>
-
-              <div class="field">
-                <label class="field-label" for="initial-status">当前状态 <span class="required">*</span></label>
-                <select class="select" id="initial-status" name="status" required>
-                  <option value="" selected disabled>请选择当前状态</option>
-                  <option value="已投递">已投递</option>
-                  <option value="笔试完">笔试完</option>
-                  <option value="一面面试完">一面面试完</option>
-                  <option value="二面面试完">二面面试完</option>
-                  <option value="三面面试完">三面面试完</option>
-                  <option value="等待Offer">等待Offer</option>
-                  <option value="已结束">已结束</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="form-footer">
-              <span class="form-footnote">* 标记字段均为必填项</span>
-              <button class="primary-button" type="submit"><span aria-hidden="true">＋</span>保存投递记录</button>
-            </div>
-          </form>
-
-          <aside class="card guidance-card" aria-label="记录流程说明">
-            <div class="card-kicker">Record flow</div>
-            <ol class="record-steps">
-              <li class="record-step"><span class="step-number">01</span><div><strong>写下公司和岗位</strong><p>一家公司可以同时记录多个岗位。</p></div></li>
-              <li class="record-step"><span class="step-number">02</span><div><strong>选择投递方式和状态</strong><p>投递方式和当前进度都可以日后修改。</p></div></li>
-              <li class="record-step"><span class="step-number">03</span><div><strong>保存，开始跟踪</strong><p>投递时间由系统在保存瞬间自动记录。</p></div></li>
-            </ol>
-            <div class="tip-box"><span class="tip-icon">↳</span><span>建议每次投递后立即记录，避免多个岗位混在记忆里。</span></div>
-          </aside>
-        </div>
-
-        <section class="card recent-card" aria-labelledby="recent-title">
-          <div class="recent-header"><h3 id="recent-title">最近记录</h3><span id="recent-count">暂无记录</span></div>
-          <div class="recent-list" id="recent-list"></div>
-        </section>
-      </section>
-
-      <section class="view" id="view-status" hidden>
-        <div class="page-heading">
-          <div>
-            <h2>按公司更新状态</h2>
-            <p>输入公司名称，进度和校招网址会一并显示；找到后可直接点击。</p>
-          </div>
-          <div class="status-ladder" aria-label="七个投递状态">
-            <span class="ladder-item"><i class="ladder-dot"></i><em class="ladder-label">已投递</em></span>
-            <span class="ladder-item"><i class="ladder-dot"></i><em class="ladder-label">笔试</em></span>
-            <span class="ladder-item"><i class="ladder-dot"></i><em class="ladder-label">一面</em></span>
-            <span class="ladder-item"><i class="ladder-dot"></i><em class="ladder-label">二面</em></span>
-            <span class="ladder-item"><i class="ladder-dot"></i><em class="ladder-label">三面</em></span>
-            <span class="ladder-item"><i class="ladder-dot"></i><em class="ladder-label">Offer</em></span>
-            <span class="ladder-item"><i class="ladder-dot"></i><em class="ladder-label">结束</em></span>
-          </div>
-        </div>
-
-        <div class="card search-card">
-          <label class="search-label" for="status-company-search">公司名称</label>
-          <div class="search-box"><input class="input" id="status-company-search" type="search" placeholder="输入公司名称，例如：小米" autocomplete="off" /></div>
-          <p class="search-helper">支持部分匹配，例如输入“小米”可以找到“小米汽车”。</p>
-        </div>
-
-        <div class="status-results" id="status-results"></div>
-      </section>
-
-      <section class="view" id="view-summary" hidden>
-        <div class="page-heading">
-          <div>
-            <h2>投递汇总</h2>
-            <p>所有记录一行一个岗位；选择“官网”时自动查询校招网址，编辑时可修改。</p>
-          </div>
-          <div class="heading-mark" aria-label="汇总视图"><span></span><span></span><span></span></div>
-        </div>
-
-        <div class="metric-grid summary-stats" aria-label="投递统计">
-          <article class="metric-card is-blue"><span class="metric-label">总投递数</span><strong class="metric-value" id="summary-total">0</strong></article>
-          <article class="metric-card is-teal"><span class="metric-label">进行中</span><strong class="metric-value" id="summary-progress">0</strong></article>
-          <article class="metric-card is-amber"><span class="metric-label">等待 Offer</span><strong class="metric-value" id="summary-offer">0</strong></article>
-          <article class="metric-card is-red"><span class="metric-label">已结束</span><strong class="metric-value" id="summary-ended">0</strong></article>
-        </div>
-
-        <div class="card filters-card" aria-label="筛选条件">
-          <div class="filter-field">
-            <label class="filter-label" for="summary-search">关键词</label>
-            <div class="filter-search"><input class="input" id="summary-search" type="search" placeholder="搜索公司或岗位名称" autocomplete="off" /></div>
-          </div>
-          <div class="filter-field">
-            <label class="filter-label" for="summary-status-filter">状态</label>
-            <select class="select" id="summary-status-filter">
-              <option value="">全部状态</option>
-              <option value="已投递">已投递</option>
-              <option value="笔试完">笔试完</option>
-              <option value="一面面试完">一面面试完</option>
-              <option value="二面面试完">二面面试完</option>
-              <option value="三面面试完">三面面试完</option>
-              <option value="等待Offer">等待Offer</option>
-              <option value="已结束">已结束</option>
-            </select>
-          </div>
-          <div class="filter-field">
-            <label class="filter-label" for="summary-application-filter">投递方式</label>
-            <select class="select" id="summary-application-filter">
-              <option value="">全部方式</option>
-              <option value="官网">官网</option>
-              <option value="公众号">公众号</option>
-              <option value="线下">线下</option>
-              <option value="其他">其他</option>
-            </select>
-          </div>
-          <button class="text-button filter-clear" id="clear-filters" type="button">清除筛选</button>
-        </div>
-
-        <section class="card table-card" aria-labelledby="table-title">
-          <div class="table-header">
-            <h3 id="table-title">全部投递记录</h3>
-            <div class="table-meta"><strong id="summary-count">0 条记录</strong><span id="summary-filter-note">当前为全部记录</span></div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr><th scope="col">公司名称</th><th scope="col">岗位名称</th><th scope="col">校招网址</th><th scope="col">投递时间</th><th scope="col">投递方式</th><th scope="col">当前状态</th><th scope="col">操作</th></tr>
-              </thead>
-              <tbody id="summary-body"></tbody>
-            </table>
-          </div>
-        </section>
-      </section>
-    </main>
   </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/dist/umd/supabase.min.js" integrity="sha384-EyR2P0dlmjnEGcm9xcjdAn0VedZpRHEwDLP9oSS6wYMvzHBHkUrvgonveazJ/sSx" crossorigin="anonymous"></script>
-  <script>
-    (() => {
-      "use strict";
-
-      const SUPABASE_URL = "https://qklxxwsmhdcxqgytlaru.supabase.co";
-      const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_egOIdrI7qRKK9o2oKkpLBg_S7Nw0RDA";
-      const supabaseClient = window.supabase && !SUPABASE_PUBLISHABLE_KEY.includes("__")
-        ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-        })
-        : null;
-      const STORAGE_KEY = "local-career-application-ledger-v1";
-      const CAMPUS_WEBSITE_CACHE_KEY = "local-career-application-campus-website-cache-v1";
-      const CAMPUS_WEBSITE_CACHE_TTL = 24 * 60 * 60 * 1000;
-      const STATUS_OPTIONS = ["已投递", "笔试完", "一面面试完", "二面面试完", "三面面试完", "等待Offer", "已结束"];
-      const APPLICATION_METHOD_OPTIONS = ["官网", "公众号", "线下", "其他"];
-      const LEGACY_LOGIN_OPTIONS = ["手机号", "微信", "邮箱", "其他"];
-      const PAGE_META = {
-        stats: { eyebrow: "APPLICATION DESK / 01", title: "记录一次新的投递" },
-        status: { eyebrow: "APPLICATION DESK / 02", title: "更新岗位进度" },
-        summary: { eyebrow: "APPLICATION DESK / 03", title: "查看全部记录" }
-      };
-
-      let records = [];
-      let campusWebsiteCache = loadCampusWebsiteCache();
-      const campusWebsiteRequests = new Map();
-      let currentView = "stats";
-      let editingId = null;
-      let toastTimer = null;
-      let currentUser = null;
-      let cloudReady = false;
-      let pendingMigrationRecords = [];
-      let authMode = "login";
-      let recoveryMode = false;
-      let sessionSequence = 0;
-
-      const $ = (selector, root = document) => root.querySelector(selector);
-      const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
-
-      function makeId() {
-        if (window.crypto && typeof window.crypto.randomUUID === "function") return window.crypto.randomUUID();
-        return "rec-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 9);
-      }
-
-      function loadRecords() {
-        try {
-          const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-          if (!Array.isArray(parsed)) return [];
-          return parsed.filter((item) => item && typeof item === "object" && item.company && item.title && STATUS_OPTIONS.includes(item.status) && (APPLICATION_METHOD_OPTIONS.includes(item.applicationMethod) || LEGACY_LOGIN_OPTIONS.includes(item.loginMethod))).map((item) => ({
-            id: String(item.id || makeId()),
-            company: String(item.company).trim(),
-            title: String(item.title).trim(),
-            website: item.websiteSource === "manual" && isValidWebsite(item.website) ? normalizeWebsite(item.website) : "",
-            websiteSource: item.websiteSource === "manual" ? "manual" : "",
-            applicationMethod: APPLICATION_METHOD_OPTIONS.includes(item.applicationMethod) ? String(item.applicationMethod) : "其他",
-            status: String(item.status),
-            appliedAt: Number(item.appliedAt) || Date.now()
-          }));
-        } catch (error) {
-          return [];
-        }
-      }
-
-      function companyKey(company) {
-        return String(company || "").trim().toLocaleLowerCase();
-      }
-
-      function loadCampusWebsiteCache() {
-        try {
-          const parsed = JSON.parse(localStorage.getItem(CAMPUS_WEBSITE_CACHE_KEY) || "{}");
-          if (!parsed || typeof parsed !== "object") return {};
-          return Object.fromEntries(Object.entries(parsed).filter(([, item]) => item && typeof item === "object" && Number(item.checkedAt) > 0 && (!item.url || isValidWebsite(item.url))).map(([key, item]) => [key, {
-            url: item.url ? normalizeWebsite(item.url) : "",
-            checkedAt: Number(item.checkedAt),
-            error: Boolean(item.error)
-          }]));
-        } catch (error) {
-          return {};
-        }
-      }
-
-      function saveCampusWebsiteCache() {
-        localStorage.setItem(CAMPUS_WEBSITE_CACHE_KEY, JSON.stringify(campusWebsiteCache));
-      }
-
-      function cachedCampusWebsite(company) {
-        const cached = campusWebsiteCache[companyKey(company)];
-        if (!cached || Date.now() - Number(cached.checkedAt) > CAMPUS_WEBSITE_CACHE_TTL) return null;
-        return cached;
-      }
-
-      function persist() { renderAll(); }
-
-      function getAuthRedirectUrl() {
-        return window.location.protocol === "http:" || window.location.protocol === "https:"
-          ? `${window.location.origin}${window.location.pathname}`
-          : "https://snowball1126.github.io/internship-offer-count/";
-      }
-
-      function setSyncState(label, state = "ready") {
-        const badge = $("#sync-badge");
-        if (!badge) return;
-        badge.textContent = label;
-        badge.classList.toggle("is-busy", state === "busy");
-        badge.classList.toggle("is-error", state === "error");
-      }
-
-      function setAuthMessage(message, type = "") {
-        const root = $("#auth-message");
-        root.textContent = message;
-        root.classList.toggle("is-error", type === "error");
-        root.classList.toggle("is-success", type === "success");
-      }
-
-      function updateAuthMode() {
-        const signUp = authMode === "signup";
-        $("#auth-form").hidden = recoveryMode;
-        $("#recovery-form").hidden = !recoveryMode;
-        $("#auth-mode-toggle").hidden = recoveryMode;
-        $("#auth-reset").hidden = signUp || recoveryMode;
-        if (recoveryMode) {
-          $("#auth-title").textContent = "设置新密码";
-          $("#auth-subtitle").textContent = "设置完成后就可以继续使用投递台账。";
-          return;
-        }
-        $("#auth-title").textContent = signUp ? "创建你的投递台账" : "登录你的投递台账";
-        $("#auth-subtitle").textContent = signUp ? "创建后即可在手机和电脑同步管理投递记录。" : "登录后，手机和电脑都可以查看同一份记录。";
-        $("#auth-submit").textContent = signUp ? "创建账号" : "登录";
-        $("#auth-mode-toggle").textContent = signUp ? "已有账号？登录" : "还没有账号？注册";
-        $("#auth-password").setAttribute("autocomplete", signUp ? "new-password" : "current-password");
-        setAuthMessage("");
-      }
-
-      function showAuthScreen(visible) {
-        $("#auth-screen").hidden = !visible;
-        $("#app-shell").hidden = visible;
-      }
-
-      function mapCloudRecord(item) {
-        const appliedAt = Date.parse(item.applied_at) || Date.now();
-        return {
-          id: String(item.id),
-          company: String(item.company || "").trim(),
-          title: String(item.title || "").trim(),
-          website: item.website_source === "manual" && isValidWebsite(item.website) ? normalizeWebsite(item.website) : "",
-          websiteSource: item.website_source === "manual" ? "manual" : "",
-          applicationMethod: APPLICATION_METHOD_OPTIONS.includes(item.application_method) ? item.application_method : "其他",
-          status: STATUS_OPTIONS.includes(item.status) ? item.status : "已投递",
-          appliedAt
-        };
-      }
-
-      function toCloudRecord(record, userId = currentUser?.id) {
-        return {
-          id: record.id,
-          user_id: userId,
-          company: record.company,
-          title: record.title,
-          application_method: record.applicationMethod,
-          status: record.status,
-          website: record.website || "",
-          website_source: record.websiteSource || "",
-          applied_at: new Date(record.appliedAt).toISOString(),
-          updated_at: new Date().toISOString()
-        };
-      }
-
-      async function loadCloudRecords() {
-        if (!supabaseClient || !currentUser) return;
-        const requestSequence = ++sessionSequence;
-        cloudReady = false;
-        setSyncState("正在同步…", "busy");
-        const { data, error } = await supabaseClient.from("applications").select("*").order("applied_at", { ascending: false });
-        if (requestSequence !== sessionSequence) return;
-        if (error) {
-          records = [];
-          setSyncState("同步失败", "error");
-          showToast(`云端读取失败：${error.message || "请检查数据库表是否已创建"}`, "error");
-          renderAll();
-          return;
-        }
-        records = Array.isArray(data) ? data.map(mapCloudRecord).filter((record) => record.company && record.title) : [];
-        cloudReady = true;
-        setSyncState("云端同步");
-        const localRecords = loadRecords();
-        pendingMigrationRecords = records.length === 0 ? localRecords : [];
-        $("#migration-banner").hidden = !pendingMigrationRecords.length;
-        renderAll();
-      }
-
-      async function handleSession(session, eventName = "") {
-        const requestSequence = ++sessionSequence;
-        currentUser = session?.user || null;
-        if (eventName === "PASSWORD_RECOVERY") {
-          recoveryMode = true;
-          updateAuthMode();
-          showAuthScreen(true);
-          return;
-        }
-        if (!currentUser) {
-          recoveryMode = false;
-          updateAuthMode();
-          cloudReady = false;
-          records = [];
-          pendingMigrationRecords = [];
-          $("#migration-banner").hidden = true;
-          $("#account-email").textContent = "";
-          setSyncState("等待登录");
-          showAuthScreen(true);
-          renderAll();
-          return;
-        }
-        recoveryMode = false;
-        updateAuthMode();
-        $("#account-email").textContent = currentUser.email || "已登录";
-        showAuthScreen(false);
-        if (requestSequence === sessionSequence) await loadCloudRecords();
-      }
-
-      async function submitAuth(event) {
-        event.preventDefault();
-        if (!supabaseClient) {
-          setAuthMessage("云端连接尚未配置完成，请稍后再试。", "error");
-          return;
-        }
-        const email = $("#auth-email").value.trim();
-        const password = $("#auth-password").value;
-        if (!email || !/^\S+@\S+\.\S+$/.test(email)) { setAuthMessage("请输入有效的邮箱地址。", "error"); return; }
-        if (password.length < 6) { setAuthMessage("密码至少需要 6 位。", "error"); return; }
-        const submitButton = $("#auth-submit");
-        submitButton.disabled = true;
-        submitButton.textContent = authMode === "signup" ? "创建中…" : "登录中…";
-        const result = authMode === "signup"
-          ? await supabaseClient.auth.signUp({ email, password })
-          : await supabaseClient.auth.signInWithPassword({ email, password });
-        submitButton.disabled = false;
-        submitButton.textContent = authMode === "signup" ? "创建账号" : "登录";
-        if (result.error) { setAuthMessage(result.error.message || "操作失败，请稍后再试。", "error"); return; }
-        if (authMode === "signup" && !result.data.session) {
-          setAuthMessage("账号已创建，请先查收验证邮件，再回来登录。", "success");
-          return;
-        }
-        setAuthMessage("登录成功，正在同步…", "success");
-      }
-
-      async function resetPassword() {
-        if (!supabaseClient) { setAuthMessage("云端连接尚未配置完成，请稍后再试。", "error"); return; }
-        const email = $("#auth-email").value.trim();
-        if (!email || !/^\S+@\S+\.\S+$/.test(email)) { setAuthMessage("请先输入注册邮箱。", "error"); return; }
-        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: getAuthRedirectUrl() });
-        if (error) { setAuthMessage(error.message || "发送失败，请稍后再试。", "error"); return; }
-        setAuthMessage("重置密码邮件已发送，请检查邮箱。", "success");
-      }
-
-      async function submitRecovery(event) {
-        event.preventDefault();
-        const password = $("#recovery-password").value;
-        const confirm = $("#recovery-confirm").value;
-        if (password.length < 6) { setAuthMessage("新密码至少需要 6 位。", "error"); return; }
-        if (password !== confirm) { setAuthMessage("两次输入的密码不一致。", "error"); return; }
-        const button = $("#recovery-submit");
-        button.disabled = true;
-        const { error } = await supabaseClient.auth.updateUser({ password });
-        button.disabled = false;
-        if (error) { setAuthMessage(error.message || "更新失败，请重新打开邮件链接。", "error"); return; }
-        recoveryMode = false;
-        $("#recovery-form").reset();
-        setAuthMessage("密码已更新，正在打开台账…", "success");
-        const { data } = await supabaseClient.auth.getSession();
-        await handleSession(data.session);
-      }
-
-      async function importLocalRecords() {
-        if (!supabaseClient || !currentUser || !cloudReady || !pendingMigrationRecords.length) return;
-        const imported = pendingMigrationRecords.map((record) => ({ ...record, id: makeId() }));
-        setSyncState("导入中…", "busy");
-        const { data, error } = await supabaseClient.from("applications").insert(imported.map((record) => toCloudRecord(record))).select("*");
-        if (error) {
-          setSyncState("同步失败", "error");
-          showToast(`导入失败：${error.message || "请稍后再试"}`, "error");
-          return;
-        }
-        records = Array.isArray(data) ? [...data.map(mapCloudRecord), ...records] : [...imported, ...records];
-        pendingMigrationRecords = [];
-        $("#migration-banner").hidden = true;
-        setSyncState("云端同步");
-        renderAll();
-        showToast(`已导入 ${imported.length} 条本机记录`);
-      }
-
-      async function createCloudRecords(newRecords) {
-        if (!supabaseClient || !currentUser || !cloudReady) { showToast("请先登录后再保存记录", "error"); return false; }
-        setSyncState("保存中…", "busy");
-        const { error } = await supabaseClient.from("applications").insert(newRecords.map((record) => toCloudRecord(record)));
-        if (error) {
-          setSyncState("同步失败", "error");
-          showToast(`保存失败：${error.message || "请稍后再试"}`, "error");
-          return false;
-        }
-        setSyncState("云端同步");
-        return true;
-      }
-
-      async function updateCloudRecord(record) {
-        if (!supabaseClient || !currentUser || !cloudReady) { showToast("当前还没有连接到云端", "error"); return false; }
-        setSyncState("保存中…", "busy");
-        const { error } = await supabaseClient.from("applications").update(toCloudRecord(record)).eq("id", record.id).eq("user_id", currentUser.id);
-        if (error) {
-          setSyncState("同步失败", "error");
-          showToast(`保存失败：${error.message || "请稍后再试"}`, "error");
-          return false;
-        }
-        setSyncState("云端同步");
-        return true;
-      }
-
-      async function deleteCloudRecord(id) {
-        if (!supabaseClient || !currentUser || !cloudReady) { showToast("当前还没有连接到云端", "error"); return false; }
-        setSyncState("删除中…", "busy");
-        const { error } = await supabaseClient.from("applications").delete().eq("id", id).eq("user_id", currentUser.id);
-        if (error) {
-          setSyncState("同步失败", "error");
-          showToast(`删除失败：${error.message || "请稍后再试"}`, "error");
-          return false;
-        }
-        setSyncState("云端同步");
-        return true;
-      }
-
-      function escapeHTML(value) {
-        return String(value).replace(/[&<>'"]/g, (character) => ({
-          "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
-        })[character]);
-      }
-
-      function normalizeWebsite(value) {
-        const trimmed = String(value || "").trim();
-        if (!trimmed) return "";
-        return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
-      }
-
-      function isValidWebsite(value) {
-        const normalized = normalizeWebsite(value);
-        if (!normalized) return false;
-        try {
-          const parsed = new URL(normalized);
-          return (parsed.protocol === "http:" || parsed.protocol === "https:") && Boolean(parsed.hostname);
-        } catch (error) {
-          return false;
-        }
-      }
-
-      function websiteLink(value, label = "打开网址") {
-        const website = isValidWebsite(value) ? normalizeWebsite(value) : "";
-        if (!website) return `<span class="website-missing">未记录网址</span>`;
-        return `<a class="website-link" href="${escapeHTML(website)}" target="_blank" rel="noopener noreferrer" title="${escapeHTML(website)}">${escapeHTML(label)}</a>`;
-      }
-
-      function websiteDomain(value) {
-        try { return new URL(normalizeWebsite(value)).hostname.replace(/^www\./i, ""); }
-        catch (error) { return "打开网址"; }
-      }
-
-      function campusWebsiteRetryButton(company) {
-        return `<button class="website-retry" type="button" data-action="retry-website" data-company="${escapeHTML(company)}">重新查找</button>`;
-      }
-
-      function extractCampusWebsite(markdown, company) {
-        const candidates = [];
-        const pattern = /###\s+\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/gi;
-        let match;
-        while ((match = pattern.exec(String(markdown || "")))) {
-          const title = String(match[1] || "").trim();
-          const url = normalizeWebsite(String(match[2] || "").trim());
-          if (!title || !isValidWebsite(url) || candidates.some((item) => item.url === url)) continue;
-          candidates.push({ title, url });
-        }
-
-        const excludedHost = /(baike\.baidu\.com|zhihu\.com|weibo\.com|autohome\.com|zhipin\.com|liepin\.com|51job\.com|lagou\.com|jobui\.com|wikipedia\.org|forum\.|news\.)/i;
-        const campusSignal = /(校招|校园招聘|校园|应届|毕业生|campus|graduate|campus[-_ ]?recruit)/i;
-        const recruitingSignal = /(招聘|招募|career|jobs?|recruit|talent|join us|加入我们|人才)/i;
-        const pathSignal = /(campus|school|graduate|zhaopin|recruit|career|jobs?|join|talent)/i;
-        const companyText = String(company || "").toLocaleLowerCase();
-
-        return candidates.map((candidate, index) => {
-          let score = 0;
-          const haystack = `${candidate.title} ${candidate.url}`;
-          if (excludedHost.test(candidate.url)) score -= 1000;
-          if (campusSignal.test(haystack)) score += 60;
-          if (recruitingSignal.test(haystack)) score += 25;
-          try {
-            const parsed = new URL(candidate.url);
-            if (pathSignal.test(`${parsed.hostname}${parsed.pathname}`)) score += 35;
-            if (parsed.pathname && parsed.pathname !== "/") score += 3;
-          } catch (error) {
-            score -= 1000;
-          }
-          if (candidate.title.toLocaleLowerCase().includes(companyText) || companyText.includes(candidate.title.toLocaleLowerCase())) score += 5;
-          return { ...candidate, score: score - index * 0.2 };
-        }).filter((candidate) => candidate.score >= 35).sort((left, right) => right.score - left.score)[0]?.url || "";
-      }
-
-      async function fetchCampusSearch(query, signal) {
-        const encodedQuery = encodeURIComponent(query);
-        const endpoint = `https://r.jina.ai/http://www.bing.com/search?format=rss%26q=${encodedQuery}`;
-        const response = await fetch(endpoint, { signal, headers: { Accept: "text/plain" } });
-        if (!response.ok) throw new Error("campus search unavailable");
-        return response.text();
-      }
-
-      async function queryCampusWebsite(company) {
-        const queries = [`${company} 校招官网`, `${company} 校园招聘`];
-        for (const query of queries) {
-          const controller = new AbortController();
-          const timeoutId = window.setTimeout(() => controller.abort(), 12000);
-          try {
-            const markdown = await fetchCampusSearch(query, controller.signal);
-            const website = extractCampusWebsite(markdown, company);
-            if (website) return website;
-          } finally {
-            window.clearTimeout(timeoutId);
-          }
-        }
-        return "";
-      }
-
-      function startCampusWebsiteLookup(company, force = false) {
-        const key = companyKey(company);
-        if (!key || campusWebsiteRequests.has(key)) return;
-        if (force) {
-          delete campusWebsiteCache[key];
-          saveCampusWebsiteCache();
-        }
-        if (!force && cachedCampusWebsite(company)) return;
-
-        const request = queryCampusWebsite(company)
-          .then((website) => {
-            campusWebsiteCache[key] = { url: website, checkedAt: Date.now(), error: false };
-            saveCampusWebsiteCache();
-          })
-          .catch(() => {
-            campusWebsiteCache[key] = { url: "", checkedAt: Date.now(), error: true };
-            saveCampusWebsiteCache();
-          })
-          .finally(() => {
-            campusWebsiteRequests.delete(key);
-            if (currentView === "status") renderStatusResults();
-            if (currentView === "summary" && !editingId) renderSummary();
-          });
-        campusWebsiteRequests.set(key, request);
-      }
-
-      function scheduleCampusWebsiteLookups(companies) {
-        Array.from(new Set(companies.map((company) => String(company || "").trim()).filter(Boolean))).forEach((company) => startCampusWebsiteLookup(company));
-      }
-
-      function websiteDisplay(company, applicationMethod, storedWebsite = "") {
-        if (applicationMethod !== "官网") return `<span class="website-missing">不需要查询</span>`;
-        const savedWebsite = isValidWebsite(storedWebsite) ? normalizeWebsite(storedWebsite) : "";
-        if (savedWebsite) return websiteLink(savedWebsite, "点击跳转");
-        const cached = cachedCampusWebsite(company);
-        if (cached?.url) return websiteLink(cached.url, "点击跳转");
-        if (cached?.error) return `<span class="website-missing">查询失败</span>${campusWebsiteRetryButton(company)}`;
-        if (cached) return `<span class="website-missing">未找到明确校招官网</span>${campusWebsiteRetryButton(company)}`;
-        return `<span class="website-loading">正在查找校招官网…</span>`;
-      }
-
-      function websiteEditorValue(company, applicationMethod, storedWebsite = "") {
-        if (applicationMethod !== "官网") return "";
-        const savedWebsite = isValidWebsite(storedWebsite) ? normalizeWebsite(storedWebsite) : "";
-        if (savedWebsite) return savedWebsite;
-        return cachedCampusWebsite(company)?.url || "";
-      }
-
-      function formatDate(timestamp) {
-        const date = new Date(timestamp);
-        if (Number.isNaN(date.getTime())) return "—";
-        return new Intl.DateTimeFormat("zh-CN", {
-          year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false
-        }).format(date).replace(/\//g, "-");
-      }
-
-      function formatShortDate(timestamp) {
-        const date = new Date(timestamp);
-        if (Number.isNaN(date.getTime())) return "—";
-        return new Intl.DateTimeFormat("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).format(date).replace(/\//g, "-");
-      }
-
-      function statusClass(status) {
-        if (status === "已投递") return "status-applied";
-        if (status === "笔试完") return "status-test";
-        if (status === "等待Offer") return "status-offer";
-        if (status === "已结束") return "status-closed";
-        return "status-interview";
-      }
-
-      function statusBadge(status) {
-        return `<span class="status-badge ${statusClass(status)}">${escapeHTML(status)}</span>`;
-      }
-
-      function getMetrics() {
-        const total = records.length;
-        const offer = records.filter((record) => record.status === "等待Offer").length;
-        const ended = records.filter((record) => record.status === "已结束").length;
-        const progress = total - offer - ended;
-        return { total, progress, offer, ended };
-      }
-
-      function showToast(message, type = "success") {
-        const root = $("#toast-root");
-        root.innerHTML = `<div class="toast ${type === "error" ? "is-error" : ""}"><span class="toast-icon">${type === "error" ? "!" : "✓"}</span><span>${escapeHTML(message)}</span></div>`;
-        window.clearTimeout(toastTimer);
-        toastTimer = window.setTimeout(() => { root.innerHTML = ""; }, 3000);
-      }
-
-      function updateMetricIds(prefix, metrics) {
-        $(`#${prefix}-total`).textContent = metrics.total;
-        $(`#${prefix}-progress`).textContent = metrics.progress;
-        $(`#${prefix}-offer`).textContent = metrics.offer;
-        $(`#${prefix}-ended`).textContent = metrics.ended;
-      }
-
-      function renderMetrics() {
-        const metrics = getMetrics();
-        updateMetricIds("stats", metrics);
-        updateMetricIds("summary", metrics);
-      }
-
-      function renderRecent() {
-        const root = $("#recent-list");
-        const count = $("#recent-count");
-        count.textContent = records.length ? `共 ${records.length} 条` : "暂无记录";
-        if (!records.length) {
-          root.innerHTML = `<div class="empty-inline">还没有投递记录，从上方填写第一条吧。</div>`;
-          return;
-        }
-        root.innerHTML = records.slice(0, 5).map((record) => `
-          <div class="recent-item">
-            <div class="recent-main"><span class="recent-company">${escapeHTML(record.company)}</span><span class="recent-role">${escapeHTML(record.title)}</span></div>
-            <span class="recent-time">${formatShortDate(record.appliedAt)}</span>
-            ${statusBadge(record.status)}
+</section>
+<div class="app-shell" id="app-shell" hidden>
+  <aside class="sidebar" aria-label="主导航">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="3"/><path d="M8 7V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v3M3 12a24 24 0 0 0 18 0M10 12v3h4v-3"/></svg></span><span class="brand-copy"><span class="brand-name">求职投递台账</span><span class="brand-subtitle">CAREER APPLICATIONS</span></span></div>
+    <div class="nav-label">我的求职</div>
+    <nav class="nav-list"><button class="nav-button is-active" type="button" data-view="stats" aria-label="记录投递" aria-current="page"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M12 8v8M8 12h8"/></svg></span><span>记录投递</span></button><button class="nav-button" type="button" data-view="status" aria-label="跟进进度"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 3-6.3M4 4v5h5"/><path d="m9 12 2 2 4-4"/></svg></span><span>跟进进度</span></button><button class="nav-button" type="button" data-view="summary" aria-label="投递汇总"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M3 9h18M9 9v12"/></svg></span><span>投递汇总</span><b class="nav-count" id="nav-total">0</b></button></nav>
+    <p class="sidebar-note">记下每一步，<br />下一站更清晰。</p>
+    <div class="sidebar-footer"><button class="profile-card" type="button" data-open-profile aria-label="打开账号设置"><span class="avatar" data-avatar>我</span><span class="profile-copy"><strong class="profile-name" data-profile-name>我的账号</strong><span class="account-email" id="account-email"></span></span><span class="profile-chevron" aria-hidden="true">›</span></button><div class="sync-row"><span class="sync-badge" id="sync-badge" role="status">正在同步</span><span class="version">V2.0</span></div></div>
+  </aside>
+  <main class="main-content">
+    <header class="topbar"><div class="topbar-left"><span class="eyebrow" id="page-eyebrow"></span><h1 id="page-title">记录新的投递</h1><p class="topbar-subtitle" id="page-subtitle">把投过的岗位记下来，进度随时可查。</p></div><div class="topbar-actions"><button class="icon-button" type="button" id="refresh-records" aria-label="刷新投递记录" title="刷新投递记录"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M5.2 8a7.5 7.5 0 0 1 12.3-3l2.5 3M4 16l2.5 3A7.5 7.5 0 0 0 18.8 16"/></svg></button><button class="avatar mobile-profile" type="button" data-avatar data-open-profile aria-label="打开账号设置">我</button></div></header>
+    <div class="migration-banner" id="migration-banner" hidden><div class="migration-copy"><strong>这台设备上还有旧记录</strong><span>导入当前账号后，手机和电脑都可以查看。</span></div><div class="migration-actions"><button class="primary-button" id="migration-import" type="button">导入旧记录</button><button class="text-button" id="migration-dismiss" type="button">暂不导入</button></div></div>
+    <section class="view" id="view-stats" aria-label="记录投递">
+      <div class="metric-grid" aria-label="投递统计"><article class="metric-card is-blue"><span class="metric-label">全部投递</span><strong class="metric-value" id="stats-total">0</strong><span class="metric-unit">个岗位</span></article><article class="metric-card is-teal"><span class="metric-label">进行中</span><strong class="metric-value" id="stats-progress">0</strong><span class="metric-unit">个岗位</span></article><article class="metric-card is-amber"><span class="metric-label">等待 Offer</span><strong class="metric-value" id="stats-offer">0</strong><span class="metric-unit">个岗位</span></article><article class="metric-card is-red"><span class="metric-label">已结束</span><strong class="metric-value" id="stats-ended">0</strong><span class="metric-unit">个岗位</span></article></div>
+      <div class="content-grid">
+        <form class="card form-card" id="application-form" novalidate>
+          <div class="card-title-row"><div><h3>投递信息</h3><p>同一公司的多个岗位，可以一起记录。</p></div><span class="mini-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>自动记录时间</span></div>
+          <div class="field-grid">
+            <div class="field"><label class="field-label" for="company-name">公司名称 <span class="required">*</span></label><input class="input" id="company-name" type="text" maxlength="100" placeholder="例如：小米、米哈游" autocomplete="organization" aria-describedby="company-hint" required /><span class="field-hint" id="company-hint">输入名称，实时查找并核对校招官网。</span></div>
+            <div class="field"><label class="field-label" for="application-method">投递渠道 <span class="required">*</span></label><select class="select" id="application-method" required><option value="官网">官网</option><option value="公众号">公众号</option><option value="线下">线下</option><option value="其他">其他</option></select><span class="field-hint">你是通过哪里投递的？</span></div>
+            <div class="field is-full" id="campus-preview-field"><div class="campus-preview" id="campus-preview" role="status"></div></div>
+            <div class="field is-full"><label class="field-label" for="job-titles">岗位名称 <span class="required">*</span></label><textarea class="textarea" id="job-titles" rows="4" maxlength="12000" placeholder="产品经理&#10;前端开发工程师" aria-describedby="jobs-hint" required></textarea><span class="field-hint" id="jobs-hint">每行一个岗位，分别跟进进度。</span></div>
+            <div class="field is-full"><label class="field-label" for="initial-status">当前进度 <span class="required">*</span></label><select class="select" id="initial-status" required><option value="已投递">已投递</option><option value="笔试完">已完成笔试</option><option value="一面面试完">已完成一面</option><option value="二面面试完">已完成二面</option><option value="三面面试完">已完成三面</option><option value="等待Offer">等待 Offer</option><option value="已结束">已结束</option></select></div>
           </div>
-        `).join("");
-      }
-
-      function renderStatusResults() {
-        const root = $("#status-results");
-        const query = $("#status-company-search").value.trim().toLowerCase();
-        if (!query) {
-          root.innerHTML = `<div class="empty-state"><div class="empty-icon">⌕</div><h3>先搜索一家公司的名称</h3><p>输入公司名称或其中一部分，下面会列出这家公司的所有岗位。</p></div>`;
-          return;
-        }
-
-        const matched = records.filter((record) => record.company.toLowerCase().includes(query));
-        if (!matched.length) {
-          root.innerHTML = `<div class="empty-state"><div class="empty-icon">—</div><h3>没有找到相关投递记录</h3><p>没有找到“${escapeHTML($("#status-company-search").value.trim())}”相关的投递记录，可以换个关键词试试。</p></div>`;
-          return;
-        }
-
-        const groups = new Map();
-        matched.forEach((record) => {
-          if (!groups.has(record.company)) groups.set(record.company, []);
-          groups.get(record.company).push(record);
-        });
-        root.innerHTML = Array.from(groups.entries()).map(([company, companyRecords]) => `
-          <article class="card company-card">
-            <div class="company-card-header"><div><h3>${escapeHTML(company)}</h3><p>共记录 ${companyRecords.length} 个岗位</p></div><span class="company-count">${companyRecords.length} 个岗位</span></div>
-            ${companyRecords.map((record) => `
-              <div class="role-card">
-                <div class="role-summary">
-                  <h4 title="${escapeHTML(record.title)}">${escapeHTML(record.title)}</h4>
-                  <div class="role-meta"><span>投递于 ${formatDate(record.appliedAt)}</span><span class="role-meta-divider">·</span>${statusBadge(record.status)}</div>
-                  <div class="role-website">${websiteDisplay(record.company, record.applicationMethod, record.website)}</div>
-                </div>
-                <div class="state-actions">
-                  <span class="state-actions-label">点击更新当前状态</span>
-                  <div class="state-buttons">
-                    ${STATUS_OPTIONS.map((status) => `<button class="state-button ${record.status === status ? "is-current" : ""}" type="button" data-action="update-status" data-id="${escapeHTML(record.id)}" data-status="${escapeHTML(status)}" aria-pressed="${record.status === status}">${escapeHTML(status)}</button>`).join("")}
-                  </div>
-                </div>
-              </div>
-            `).join("")}
-          </article>
-        `).join("");
-        scheduleCampusWebsiteLookups(matched.filter((record) => record.applicationMethod === "官网").map((record) => record.company));
-      }
-
-      function getFilteredRecords() {
-        const query = $("#summary-search").value.trim().toLowerCase();
-        const status = $("#summary-status-filter").value;
-        const applicationMethod = $("#summary-application-filter").value;
-        return records.filter((record) => {
-          const matchesQuery = !query || record.company.toLowerCase().includes(query) || record.title.toLowerCase().includes(query) || record.website.toLowerCase().includes(query);
-          const matchesStatus = !status || record.status === status;
-          const matchesApplicationMethod = !applicationMethod || record.applicationMethod === applicationMethod;
-          return matchesQuery && matchesStatus && matchesApplicationMethod;
-        });
-      }
-
-      function inlineSelectOptions(options, selected) {
-        return options.map((option) => `<option value="${escapeHTML(option)}" ${option === selected ? "selected" : ""}>${escapeHTML(option)}</option>`).join("");
-      }
-
-      function renderSummary() {
-        const filtered = getFilteredRecords();
-        const body = $("#summary-body");
-        $("#summary-count").textContent = `${filtered.length} 条记录`;
-        const hasFilters = $("#summary-search").value.trim() || $("#summary-status-filter").value || $("#summary-application-filter").value;
-        $("#summary-filter-note").textContent = hasFilters ? `筛选自 ${records.length} 条记录` : "当前为全部记录";
-
-        if (!filtered.length) {
-          body.innerHTML = `<tr><td colspan="7"><div class="empty-state compact"><div class="empty-icon">⌁</div><h3>${records.length ? "没有符合条件的记录" : "还没有投递记录"}</h3><p>${records.length ? "试试清除筛选条件，或换一个关键词。" : "先去统计页添加一条投递记录吧。"}</p></div></td></tr>`;
-          return;
-        }
-
-        body.innerHTML = filtered.map((record) => {
-          if (record.id === editingId) {
-            return `<tr class="is-editing" data-id="${escapeHTML(record.id)}">
-              <td><input class="inline-input" data-field="company" value="${escapeHTML(record.company)}" aria-label="公司名称" /></td>
-              <td><input class="inline-input" data-field="title" value="${escapeHTML(record.title)}" aria-label="岗位名称" /></td>
-              <td><input class="inline-input" data-field="website" value="${escapeHTML(websiteEditorValue(record.company, record.applicationMethod, record.website))}" data-initial-value="${escapeHTML(websiteEditorValue(record.company, record.applicationMethod, record.website))}" aria-label="校招网址" placeholder="校招网址（可留空）" /></td>
-              <td class="time-cell">${formatDate(record.appliedAt)}</td>
-              <td><select class="inline-select" data-field="applicationMethod" aria-label="投递方式">${inlineSelectOptions(APPLICATION_METHOD_OPTIONS, record.applicationMethod)}</select></td>
-              <td><select class="inline-select" data-field="status" aria-label="当前状态">${inlineSelectOptions(STATUS_OPTIONS, record.status)}</select></td>
-              <td><div class="inline-actions"><button class="table-action" type="button" data-action="save-edit" data-id="${escapeHTML(record.id)}">保存</button><button class="table-action" type="button" data-action="cancel-edit">取消</button></div></td>
-            </tr>`;
-          }
-          return `<tr data-id="${escapeHTML(record.id)}">
-            <td><span class="company-cell" title="${escapeHTML(record.company)}">${escapeHTML(record.company)}</span></td>
-            <td><span class="role-cell" title="${escapeHTML(record.title)}">${escapeHTML(record.title)}</span></td>
-            <td>${websiteDisplay(record.company, record.applicationMethod, record.website)}</td>
-            <td class="time-cell">${formatDate(record.appliedAt)}</td>
-            <td>${escapeHTML(record.applicationMethod)}</td>
-            <td>${statusBadge(record.status)}</td>
-            <td><div class="table-actions"><button class="table-action" type="button" data-action="edit" data-id="${escapeHTML(record.id)}">编辑</button><button class="table-action is-danger" type="button" data-action="delete" data-id="${escapeHTML(record.id)}">删除</button></div></td>
-          </tr>`;
-        }).join("");
-        scheduleCampusWebsiteLookups(filtered.filter((record) => record.applicationMethod === "官网").map((record) => record.company));
-      }
-
-      function renderAll() {
-        renderMetrics();
-        renderRecent();
-        renderStatusResults();
-        renderSummary();
-      }
-
-      function switchView(view) {
-        if (!PAGE_META[view]) return;
-        currentView = view;
-        $$(".view").forEach((section) => { section.hidden = section.id !== `view-${view}`; });
-        $$(".nav-button").forEach((button) => {
-          const active = button.dataset.view === view;
-          button.classList.toggle("is-active", active);
-          if (active) button.setAttribute("aria-current", "page");
-          else button.removeAttribute("aria-current");
-        });
-        $("#page-eyebrow").textContent = PAGE_META[view].eyebrow;
-        $("#page-title").textContent = PAGE_META[view].title;
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        if (view === "summary") renderSummary();
-        if (view === "status") renderStatusResults();
-      }
-
-      async function saveNewRecords(event) {
-        event.preventDefault();
-        const companyInput = $("#company-name");
-        const jobsInput = $("#job-titles");
-        const applicationMethodInput = $("#application-method");
-        const statusInput = $("#initial-status");
-        const company = companyInput.value.trim();
-        const jobs = jobsInput.value.split(/\r?\n/).map((job) => job.trim()).filter(Boolean);
-        const applicationMethod = applicationMethodInput.value;
-        const status = statusInput.value;
-
-        [companyInput, jobsInput, applicationMethodInput, statusInput].forEach((input) => input.removeAttribute("aria-invalid"));
-        if (!company) { companyInput.setAttribute("aria-invalid", "true"); companyInput.focus(); showToast("请填写公司名称", "error"); return; }
-        if (!jobs.length) { jobsInput.setAttribute("aria-invalid", "true"); jobsInput.focus(); showToast("请至少填写一个岗位名称", "error"); return; }
-        if (!APPLICATION_METHOD_OPTIONS.includes(applicationMethod)) { applicationMethodInput.setAttribute("aria-invalid", "true"); applicationMethodInput.focus(); showToast("请选择投递方式", "error"); return; }
-        if (!STATUS_OPTIONS.includes(status)) { statusInput.setAttribute("aria-invalid", "true"); statusInput.focus(); showToast("请选择当前状态", "error"); return; }
-
-        const appliedAt = Date.now();
-        const newRecords = jobs.map((title) => ({ id: makeId(), company, title, website: "", websiteSource: "", applicationMethod, status, appliedAt }));
-        if (!(await createCloudRecords(newRecords))) return;
-        records = [...newRecords, ...records];
-        persist();
-        event.target.reset();
-        showToast(`已保存 ${newRecords.length} 个岗位的投递记录`);
-      }
-
-      async function updateStatus(id, status) {
-        const record = records.find((item) => item.id === id);
-        if (!record || !STATUS_OPTIONS.includes(status)) return;
-        const previousStatus = record.status;
-        record.status = status;
-        if (!(await updateCloudRecord(record))) { record.status = previousStatus; return; }
-        persist();
-        showToast(`已更新「${record.title}」为「${status}」`);
-      }
-
-      async function saveInlineEdit(id, row) {
-        const record = records.find((item) => item.id === id);
-        if (!record) return;
-        const company = row.querySelector('[data-field="company"]').value.trim();
-        const title = row.querySelector('[data-field="title"]').value.trim();
-        const websiteInput = row.querySelector('[data-field="website"]');
-        const applicationMethod = row.querySelector('[data-field="applicationMethod"]').value;
-        const status = row.querySelector('[data-field="status"]').value;
-        const website = websiteInput.value.trim();
-        if (!company || !title) { showToast("公司名称和岗位名称不能为空", "error"); return; }
-        if (!APPLICATION_METHOD_OPTIONS.includes(applicationMethod) || !STATUS_OPTIONS.includes(status)) { showToast("请检查投递方式和当前状态", "error"); return; }
-        if (website && !isValidWebsite(website)) { showToast("请输入有效的校招网址", "error"); websiteInput.focus(); return; }
-        const previousRecord = { ...record };
-        record.company = company;
-        record.title = title;
-        record.website = applicationMethod === "官网" && website ? normalizeWebsite(website) : "";
-        record.websiteSource = record.website ? "manual" : "";
-        record.applicationMethod = applicationMethod;
-        record.status = status;
-        if (!(await updateCloudRecord(record))) { Object.assign(record, previousRecord); return; }
-        editingId = null;
-        persist();
-        showToast("已保存修改");
-      }
-
-      async function handleAction(event) {
-        const target = event.target.closest("[data-action]");
-        if (!target) return;
-        const action = target.dataset.action;
-        const id = target.dataset.id;
-
-        if (action === "update-status") { updateStatus(id, target.dataset.status); return; }
-        if (action === "retry-website") { startCampusWebsiteLookup(target.dataset.company, true); if (currentView === "status") renderStatusResults(); if (currentView === "summary") renderSummary(); return; }
-        if (action === "edit") { editingId = id; renderSummary(); const input = $("#summary-body tr.is-editing .inline-input"); if (input) input.focus(); return; }
-        if (action === "cancel-edit") { editingId = null; renderSummary(); return; }
-        if (action === "save-edit") { saveInlineEdit(id, target.closest("tr")); return; }
-        if (action === "delete") {
-          const record = records.find((item) => item.id === id);
-          if (!record) return;
-          const confirmed = window.confirm(`确定删除“${record.company} - ${record.title}”这条投递记录吗？此操作无法撤销。`);
-          if (!confirmed) return;
-          if (!(await deleteCloudRecord(id))) return;
-          records = records.filter((item) => item.id !== id);
-          editingId = null;
-          persist();
-          showToast("已删除这条投递记录");
+          <div class="form-footer"><span class="form-footnote" id="save-hint">保存后可在「投递汇总」查看。</span><button class="primary-button" id="save-application" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M12 8v8M8 12h8"/></svg>保存投递</button></div>
+        </form>
+        <div class="guidance-wrap"><aside class="card guidance-card" aria-label="投递进度分布"><div class="card-kicker">你的投递旅程</div><ol class="journey" id="journey"></ol><p class="journey-tip">有了新进展，到「跟进进度」<br />更新一下就好。</p></aside><p class="aside-note"><strong>校招入口，顺手收好</strong>找到的链接会和投递记录一起保存，<br />下次查看进度时，直接打开。</p></div>
+      </div>
+      <section class="card recent-card" aria-labelledby="recent-title"><div class="recent-header"><h3 id="recent-title">最近投递</h3><span id="recent-count">暂无记录</span></div><div id="recent-list"></div></section>
+    </section>
+    <section class="view" id="view-status" hidden aria-label="跟进进度"><div class="card search-card"><label class="search-label" for="status-company-search">找到要更新的公司</label><div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><input class="input" id="status-company-search" type="search" placeholder="搜索公司名称" autocomplete="off" /></div><p class="search-helper">选择岗位的新进度，自动保存。留空时显示所有记录。</p></div><div id="status-results"></div></section>
+    <section class="view" id="view-summary" hidden aria-label="投递汇总">
+      <div class="metric-grid" aria-label="投递统计"><article class="metric-card is-blue"><span class="metric-label">全部投递</span><strong class="metric-value" id="summary-total">0</strong><span class="metric-unit">个岗位</span></article><article class="metric-card is-teal"><span class="metric-label">进行中</span><strong class="metric-value" id="summary-progress">0</strong><span class="metric-unit">个岗位</span></article><article class="metric-card is-amber"><span class="metric-label">等待 Offer</span><strong class="metric-value" id="summary-offer">0</strong><span class="metric-unit">个岗位</span></article><article class="metric-card is-red"><span class="metric-label">已结束</span><strong class="metric-value" id="summary-ended">0</strong><span class="metric-unit">个岗位</span></article></div>
+      <section class="card discovery-card" aria-labelledby="discovery-title"><div class="search-heading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg><div><h3 id="discovery-title">找一家公司的校招入口</h3><p>实时搜索，只显示确认匹配的校招官网。</p></div></div><form class="discovery-form" id="discovery-form"><label class="sr-only" for="discovery-company">要查找校招入口的公司</label><input class="input" id="discovery-company" type="search" maxlength="100" placeholder="例如：米哈游" required /><button class="primary-button" type="submit" id="discovery-submit">查找入口</button></form><div class="discovery-result" id="discovery-result" role="status"></div></section>
+      <div class="card filters-card" aria-label="筛选投递记录"><div class="filter-field"><label class="filter-label" for="summary-search">搜索记录</label><input class="input" id="summary-search" type="search" placeholder="公司或岗位名称" autocomplete="off" /></div><div class="filter-field"><label class="filter-label" for="summary-status-filter">当前进度</label><select class="select" id="summary-status-filter"><option value="">全部进度</option><option value="已投递">已投递</option><option value="笔试完">已完成笔试</option><option value="一面面试完">已完成一面</option><option value="二面面试完">已完成二面</option><option value="三面面试完">已完成三面</option><option value="等待Offer">等待 Offer</option><option value="已结束">已结束</option></select></div><div class="filter-field"><label class="filter-label" for="summary-application-filter">投递渠道</label><select class="select" id="summary-application-filter"><option value="">全部渠道</option><option>官网</option><option>公众号</option><option>线下</option><option>其他</option></select></div><button class="text-button filter-clear" id="clear-filters" type="button">重置筛选</button></div>
+      <section class="card table-card" aria-labelledby="table-title"><div class="table-header"><h3 id="table-title">全部投递</h3><div class="table-meta"><strong id="summary-count">0 条记录</strong><span id="summary-filter-note"></span></div></div><div class="table-wrap"><table><thead><tr><th scope="col">公司</th><th scope="col">岗位</th><th scope="col">校招入口</th><th scope="col">投递时间</th><th scope="col">渠道</th><th scope="col">进度</th><th scope="col">操作</th></tr></thead><tbody id="summary-body"></tbody></table></div><div class="mobile-records" id="mobile-records"></div></section>
+    </section>
+  </main>
+</div>
+<div class="toast-root" id="toast-root" role="status" aria-live="polite" aria-atomic="true"></div>
+<dialog id="profile-dialog" aria-labelledby="profile-title"><div class="dialog-header"><h2 id="profile-title">我的账号</h2><button class="dialog-close" type="button" data-close-dialog aria-label="关闭账号设置">×</button></div><div class="dialog-content"><div class="profile-identity"><span class="avatar" data-avatar>我</span><div class="no-overflow"><strong data-profile-name>我的账号</strong><p>管理你的个人信息</p></div></div><form id="profile-form" novalidate><label class="field-label" for="profile-username">用户名</label><input class="input" id="profile-username" maxlength="24" autocomplete="nickname" placeholder="希望怎么称呼你" required /><span class="field-hint">2–24 个字符，可随时修改；登录时仍使用邮箱。</span><button class="primary-button profile-save" id="profile-save" type="submit">保存用户名</button><p class="dialog-message" id="profile-message" role="status"></p></form><div class="account-detail"><span>登录邮箱</span><strong id="profile-email"></strong></div><div class="account-detail"><span>同步状态</span><strong id="profile-sync-state">正在同步</strong></div><div class="account-detail"><span>加入时间</span><strong id="profile-created"></strong></div><button class="secondary-button profile-signout" id="signout-button" type="button">退出登录</button></div></dialog>
+<dialog id="edit-dialog" aria-labelledby="edit-title"><div class="dialog-header"><h2 id="edit-title">编辑投递</h2><button class="dialog-close" type="button" data-close-dialog aria-label="关闭编辑">×</button></div><form class="dialog-content" id="edit-form" novalidate><div class="field-grid"><div class="field is-full"><label class="field-label" for="edit-company">公司名称</label><input class="input" id="edit-company" maxlength="100" required /></div><div class="field is-full"><label class="field-label" for="edit-job">岗位名称</label><input class="input" id="edit-job" maxlength="2000" required /></div><div class="field is-full"><label class="field-label" for="edit-website">校招网址<span class="optional">可修改或留空</span></label><input class="input" id="edit-website" type="url" inputmode="url" placeholder="https://…" autocomplete="url" /><span class="field-hint" id="edit-website-hint">手动填写的链接优先保留。</span></div><div class="field"><label class="field-label" for="edit-method">投递渠道</label><select class="select" id="edit-method"><option>官网</option><option>公众号</option><option>线下</option><option>其他</option></select></div><div class="field"><label class="field-label" for="edit-status">当前进度</label><select class="select" id="edit-status"><option value="已投递">已投递</option><option value="笔试完">已完成笔试</option><option value="一面面试完">已完成一面</option><option value="二面面试完">已完成二面</option><option value="三面面试完">已完成三面</option><option value="等待Offer">等待 Offer</option><option value="已结束">已结束</option></select></div></div><p class="field-hint" id="edit-time"></p><p class="dialog-message" id="edit-message" role="status"></p><div class="dialog-footer"><button class="secondary-button" type="button" data-close-dialog>取消</button><button class="primary-button" id="edit-save" type="submit">保存修改</button></div></form></dialog>
+<dialog id="lookup-dialog" aria-labelledby="lookup-title"><div class="dialog-header"><h2 id="lookup-title">查找校招入口</h2><button class="dialog-close" type="button" data-close-dialog aria-label="关闭查找">×</button></div><div class="dialog-content"><p class="lookup-help" id="lookup-company-label"></p><div id="lookup-results" role="status"></div><div class="search-fallbacks" id="lookup-fallbacks"></div><form class="lookup-manual" id="website-form"><label class="field-label" for="manual-website">已有正确网址？粘贴到这里</label><div class="discovery-form"><input class="input" id="manual-website" type="url" inputmode="url" placeholder="https://…" required /><button class="primary-button" type="submit" id="manual-website-save">使用此链接</button></div><p class="dialog-message" id="website-message" role="status"></p></form><p class="lookup-note">仅查询公司名称。搜索服务繁忙时可重新查找，或从上方搜索引擎补充链接。</p></div></dialog>
+<dialog id="delete-dialog" aria-labelledby="delete-title"><div class="dialog-header"><h2 id="delete-title">删除这条投递？</h2><button class="dialog-close" type="button" data-close-dialog aria-label="取消删除">×</button></div><div class="dialog-content"><p class="delete-description" id="delete-description"></p><p class="field-hint">删除后无法恢复，其他岗位不受影响。</p><p class="dialog-message" id="delete-message" role="status"></p><div class="dialog-footer"><button class="secondary-button" type="button" data-close-dialog>保留记录</button><button class="danger-button" id="confirm-delete" type="button">删除投递</button></div></div></dialog>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/dist/umd/supabase.min.js" integrity="sha384-EyR2P0dlmjnEGcm9xcjdAn0VedZpRHEwDLP9oSS6wYMvzHBHkUrvgonveazJ/sSx" crossorigin="anonymous"></script>
+<script>// Live discovery only: no company-to-URL directory, stored company list, or guessed domains.
+const CampusFinder = (() => {
+  'use strict';
+  const key=value=>String(value||'').normalize('NFKC').trim().toLowerCase().replace(/(?:股份有限公司|有限责任公司|有限公司)$/,'').replace(/[\s·•.（）()\-_,，]/g,'');
+  function companyMatches(text,company){const needle=key(company),value=key(text);if(!needle)return false;let start=-1;while((start=value.indexOf(needle,start+1))>=0){const after=value.slice(start+needle.length);if(!/[\u3400-\u9fff]/.test(needle)||!after||!/^([\u3400-\u9fff])/.test(after)||/^(?:校园|校招|招聘|集团|股份|有限|公司|控股|电气|技术|科技|创新|中国|的)/.test(after))return true;}return false;}
+  function validURL(raw){if(!raw||typeof raw!=='string')return '';const value=raw.trim();if(/^[a-z][a-z\d+.-]*:/i.test(value)&&!/^https?:\/\//i.test(value))return '';try{const u=new URL(/^https?:\/\//i.test(value)?value:`https://${value}`);if(!['https:','http:'].includes(u.protocol)||u.username||u.password||!u.hostname.includes('.')||/^(?:localhost|127\.|0\.|10\.|192\.168\.|172\.(?:1[6-9]|2\d|3[01])\.)/i.test(u.hostname))return '';return u.href;}catch{return '';}}
+  const recent=new Map(),pending=new Map(),queue=[];let active=false,lastRequestAt=0;
+  const CAMPUS=/(校园招聘|校招|应届生招聘|毕业生招聘|campus|graduate[-_ ]?recruit|early[-_ ]?careers|university[-_ ]?recruit)/i;
+  const RECRUIT=/(校园招聘|校招|招聘|人才招聘|加入我们|join us|careers?|recruit|jobs?|zhaopin)/i;
+  const BAD_TITLE=/(面经|经验分享|备考|攻略|汇总|内推码|怎么样|薪资待遇|培训|盘点|讨论|求职辅导)/;
+  const BLOCKED=/(?:^|\.)(?:baike\.baidu\.com|zhihu\.com|nowcoder\.com|weibo\.com|weixin\.qq\.com|wikipedia\.org|jobui\.com|zhipin\.com|liepin\.com|csdn\.net|yingjiesheng\.com|github\.com|bilibili\.com|xiaohongshu\.com|sohu\.com|toutiao\.com|quanzhi\.com|shixiseng\.com|yingjiesheng\.net|haitou\.cc|yingjieshengjob\.com|zhaopin\.com|linkedin\.com)$/i;
+  const ATS=/(?:^|\.)(?:mokahr\.com|zhiye\.com|hotjob\.cn|jobs\.feishu\.cn|jobs\.f\.mioffice\.cn|moseeker\.com|myworkdayjobs\.com|iguopin\.com)$/i;
+  function datedCampaign(url){const years=[...new URL(url).pathname.matchAll(/(?:^|[^\d])(20\d{2})(?=[^\d]|$)/g)].map(x=>Number(x[1]));return years.length&&Math.max(...years)<new Date().getFullYear()-1;}
+  function hostAllowed(url){try{const u=new URL(url);if(/(?:^|\.)(?:bing\.com|google\.[a-z.]+|baidu\.com|duckduckgo\.com)$/.test(u.hostname))return false;if(BLOCKED.test(u.hostname)&&!/(?:^|\.)(?:jobs?|careers?|campus|hr)\./.test(u.hostname))return false;if(/\.(?:edu|ac)(?:\.[a-z]+)?$|\.gov\.cn$/i.test(u.hostname))return false;if(/\.(?:pdf|docx?|xlsx?|zip|png|jpe?g|mp4)(?:$|\?)/i.test(url))return false;if(/(?:^|[.\/])(?:news|article|blog|bbs|forum)(?:[.\/]|$)/i.test(url))return false;return true;}catch{return false;}}
+  function cleanResultURL(raw){let value=String(raw||'').replace(/&amp;/g,'&');try{let u=new URL(value);if(/(?:^|\.)bing\.com$/.test(u.hostname)&&u.pathname==='/ck/a'){const encoded=u.searchParams.get('u');if(encoded?.startsWith('a1')){let text=encoded.slice(2).replace(/-/g,'+').replace(/_/g,'/');value=atob(text.padEnd(Math.ceil(text.length/4)*4,'='));}}if(/(?:^|\.)google\.[a-z.]+$/.test(u.hostname)&&u.pathname==='/url')value=u.searchParams.get('q')||u.searchParams.get('url')||'';if(/(?:^|\.)duckduckgo\.com$/.test(u.hostname)&&u.searchParams.has('uddg'))value=u.searchParams.get('uddg');return validURL(value);}catch{return '';}}
+  function parseResults(content){
+    const results=[],seen=new Map();
+    const add=(title,url,snippet='')=>{url=cleanResultURL(url);if(!url||!hostAllowed(url))return;title=String(title).trim();snippet=String(snippet).slice(0,500);if(seen.has(url)){const item=seen.get(url);if(!item.title.includes(title))item.title=(item.title+' '+title).slice(0,600);return;}const item={title,url,snippet};seen.set(url,item);results.push(item);};
+    const text=String(content||'').replace(/!\[[^\]]*\]\([^)]*\)/g,'');
+    if(/<rss[\s>]/i.test(text)){const doc=new DOMParser().parseFromString(text,'application/xml');doc.querySelectorAll('item').forEach(item=>add(item.querySelector('title')?.textContent||'',item.querySelector('link')?.textContent||'',item.querySelector('description')?.textContent||''));}
+    const pattern=/\[([^\]\n]{1,600})\]\((https?:\/\/[^\s)]+)\)/g;let match;
+    while((match=pattern.exec(text))){const snippet=text.slice(pattern.lastIndex,pattern.lastIndex+500).split(/\n\s*###/)[0];add(match[1],match[2],snippet);
+      // Search engines may wrap destinations in opaque redirects. Use only a URL
+      // actually printed in that result heading, then verify the destination live.
+      if(/google\.[a-z.]+\/goto\?/.test(match[2])){const printed=match[1].match(/https?:\/\/[^\s›<>\]]+/)?.[0];if(printed&&!/…|\.\.\./.test(printed))add(match[1],printed,snippet);}
+    }
+    return results;
+  }
+  function rank(items,company){const needle=key(company);return items.flatMap(item=>{if(!hostAllowed(item.url)||datedCampaign(item.url)||/\/(?:notice|news|article|post|announcement)(?:[\/-]|$)|\/job-[^/]+|\/jobdetail(?:[\/.]|$)/i.test(new URL(item.url).pathname)||BAD_TITLE.test(item.title)||!key(item.title+' '+item.snippet).includes(needle))return [];const u=new URL(item.url);const root=/^\/(?:(?:zh[-_]cn|cn|en|zh)\/?)?(?:index\.(?:html?|php))?$/.test(u.pathname);const signal=CAMPUS.test(item.title+' '+item.url)?90:RECRUIT.test(item.title+' '+item.url)?65:root?40:0;return signal?[{...item,score:signal+(key(item.title).includes(needle)?12:0),root}]:[];}).sort((a,b)=>b.score-a.score);}
+  async function fetchContent(url,{html=false,timeout=12000,signal}={}){const delay=Math.max(0,3100-(Date.now()-lastRequestAt));if(delay)await new Promise(resolve=>setTimeout(resolve,delay));if(signal?.aborted)throw new DOMException('Aborted','AbortError');lastRequestAt=Date.now();const controller=new AbortController();const abort=()=>controller.abort();signal?.addEventListener('abort',abort,{once:true});const timer=setTimeout(abort,timeout);try{const headers=html?{'Accept':'text/html','X-Return-Format':'html','X-Timeout':'10'}:{'Accept':'text/plain'};const response=await fetch(`https://r.jina.ai/${url}`,{headers,signal:controller.signal});if(!response.ok)throw new Error(`HTTP ${response.status}`);const text=await response.text();if(/SecurityCompromiseError|RateLimitTriggeredError|百度安全验证|CAPTCHA|unusual traffic|请输入验证码|访问异常页面|temporary problems searching/i.test(text.slice(0,4000)))throw new Error('Search unavailable');return text;}finally{clearTimeout(timer);signal?.removeEventListener('abort',abort);}}
+  function literalCampusLinks(content,url){
+    const entities={quot:'"',apos:"'",amp:'&',lt:'<',gt:'>'};
+    let data=content.replace(/&(?:quot|apos|amp|lt|gt|#\d+|#x[a-f\d]+);/gi,token=>{const name=token.slice(1,-1).toLowerCase();const point=name.startsWith('#x')?parseInt(name.slice(2),16):name.startsWith('#')?Number(name.slice(1)):0;return entities[name]||(point>0&&point<=0x10ffff?String.fromCodePoint(point):token);}).replace(/\\u([a-f\d]{4})/gi,(_,n)=>String.fromCharCode(parseInt(n,16)));
+    for(let i=0;i<3;i++)data=data.replace(/\\([\\/"'])/g,'$1');
+    const links=[];
+    for(const match of data.matchAll(/["'`](https?:\/\/[^\s"'`<>]+|\/(?!\/)[^\s"'`<>${}]{1,180})["'`]/g)){
+      let target='';try{target=validURL(new URL(match[1],url).href);}catch{continue;}
+      if(target&&hostAllowed(target)&&CAMPUS.test(new URL(target).pathname+new URL(target).hash)&&!/\/api\/|\.(?:js|css|svg|gif|ico|webp|woff2?)(?:$|\?)/i.test(target)&&!links.some(x=>x.url===target))links.push({title:'',url:target});
+    }
+    return links.sort((a,b)=>a.url.length-b.url.length);
+  }
+  function readPage(content,url){
+    if(/^Title:[^\n]*\n/.test(content))return {title:content.match(/^Title:\s*([^\n]*)/)?.[1]||'',metadata:'',body:content.split('Markdown Content:').pop(),links:parseResults(content),html:''};
+    const doc=new DOMParser().parseFromString(content,'text/html');const title=doc.querySelector('title')?.textContent||'';
+    const metadata=[...doc.querySelectorAll('meta[name="keywords"],meta[name="description"],meta[property="og:site_name"],meta[property="og:title"]')].map(n=>n.getAttribute('content')).join(' ');
+    const links=[...doc.querySelectorAll('a[href]')].flatMap(a=>{try{const href=validURL(new URL(a.getAttribute('href'),url).href);return href&&hostAllowed(href)?[{title:(a.textContent||a.getAttribute('aria-label')||a.title||'').trim(),url:href}]:[];}catch{return [];}});
+    // Some official sites serialize navigation in their page data. Extract only
+    // literal campus URLs from that data; never run downloaded scripts or guess paths.
+    links.push(...literalCampusLinks(content,url).filter(item=>!links.some(x=>x.url===item.url)));
+    const scripts=[...doc.querySelectorAll('script[src]')].flatMap(node=>{try{const target=new URL(node.getAttribute('src'),url).href;return sameDomain(target,url)&&/\.js(?:$|\?)/.test(target)&&!/jquery|vendor|polyfill|analytics|tracker/i.test(target)?[target]:[];}catch{return [];}});
+    doc.querySelectorAll('script,style,noscript').forEach(n=>n.remove());
+    const body=doc.body?.textContent||'';return {title,metadata,body,links,scripts,html:content};
+  }
+  function registrable(host){const labels=host.split('.');const special=/\.(?:com|net|org|edu)\.(?:cn|hk|uk|au)$/.test(host);return labels.slice(special?-3:-2).join('.');}
+  const sameDomain=(a,b)=>registrable(new URL(a).hostname)===registrable(new URL(b).hostname);
+  function campusRouteFromMigration(page,target){if(!/(网站已迁移|永久迁移|moved permanently|location\.(?:href|replace|assign))/i.test(page.html))return '';if(!page.links.some(link=>sameDomain(link.url,target)&&RECRUIT.test(link.url)))return '';const fragment=page.html.match(/#\/(?:campus|campus-recruitment|school)(?:\/[a-z-]+)?/i)?.[0];return fragment?new URL(target).origin+'/'+fragment:'';}
+  async function discover(company){const session={visited:new Set(),reads:0,successful:0,started:Date.now(),evidence:[]};const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),65000);const needle=key(company);const outcome=(url,proof)=>({url,title:`${company} · 校园招聘`,kind:'campus',source:'search',checkedAt:Date.now(),evidence:proof,candidates:[]});
+    async function walk(url,{parent=null,fromCampus=false,depth=0}={}){
+      url=validURL(url);if(!url||!hostAllowed(url)||datedCampaign(url)||session.visited.has(url)||session.reads>=7||depth>3||controller.signal.aborted)return null;session.visited.add(url);session.reads++;
+      let content;try{content=await fetchContent(url,{html:true,signal:controller.signal});session.successful++;}catch{return null;}
+      let page=readPage(content,url);if(/404\s*(?:not found|页面不存在)|域名出售|website is for sale|Access Denied/i.test(page.title))return null;
+      // A syndicated vacancy or announcement is not a campus application portal,
+      // even when it copies the employer's name and calls itself campus recruitment.
+      if(/\/(?:notice|news|article|post|announcement)(?:[\/-]|$)|\/job-[^/]+|\/jobdetail(?:[\/.]|$)/i.test(new URL(url).pathname)||/牛企校招|应届生求职网|招聘资讯|招聘信息网|岗位详情|职位详情/.test(page.title))return null;
+      // Read an explicitly referenced same-origin document shell (some sites load their HTML with fetch).
+      if(!page.title&&page.body.trim().length<50){const shell=page.html.match(/fetch\(\s*['"](\/[^'"]+)['"]\s*\)/);if(shell){const result=await walk(new URL(shell[1],url).href,{parent:url,depth:depth+1});if(result)return result;}}
+      let identity=companyMatches(page.title,company)||(!/(招聘|校招)/.test(page.title)&&(key(page.metadata).includes(needle)||key(page.body.slice(0,8000)).includes(needle)));
+      const inherited=!!parent&&(sameDomain(parent,url)||ATS.test(new URL(url).hostname)||fromCampus);
+      if(!identity&&!inherited)return null;
+      if(page.html&&!page.links.some(link=>CAMPUS.test(link.title+' '+link.url))&&page.body.trim().length<300&&session.reads<7){
+        session.reads++;
+        try{const rendered=readPage(await fetchContent(url,{signal:controller.signal}),url);page={...page,title:rendered.title||page.title,body:rendered.body,links:[...page.links,...rendered.links]};identity=identity||key(page.title+' '+page.body.slice(0,5000)).includes(needle);}catch{}
+        if(!page.links.some(link=>CAMPUS.test(link.title+' '+link.url)))for(const script of (page.scripts||[]).slice(0,1)){
+          try{const code=await fetchContent(script,{signal:controller.signal});if(code.length<1500000)page.links.push(...literalCampusLinks(code,url));}catch{}
         }
       }
-
-      $$(".nav-button").forEach((button) => button.addEventListener("click", () => switchView(button.dataset.view)));
-      $("#application-form").addEventListener("submit", saveNewRecords);
-      $("#status-company-search").addEventListener("input", renderStatusResults);
-      $("#summary-search").addEventListener("input", renderSummary);
-      $("#summary-status-filter").addEventListener("change", renderSummary);
-      $("#summary-application-filter").addEventListener("change", renderSummary);
-      $("#clear-filters").addEventListener("click", () => {
-        $("#summary-search").value = "";
-        $("#summary-status-filter").value = "";
-        $("#summary-application-filter").value = "";
-        renderSummary();
-      });
-      $("#auth-form").addEventListener("submit", submitAuth);
-      $("#recovery-form").addEventListener("submit", submitRecovery);
-      $("#auth-mode-toggle").addEventListener("click", () => {
-        authMode = authMode === "login" ? "signup" : "login";
-        updateAuthMode();
-      });
-      $("#auth-reset").addEventListener("click", resetPassword);
-      $("#signout-button").addEventListener("click", async () => {
-        if (!supabaseClient) return;
-        await supabaseClient.auth.signOut();
-      });
-      $("#migration-import").addEventListener("click", importLocalRecords);
-      $("#migration-dismiss").addEventListener("click", () => {
-        pendingMigrationRecords = [];
-        $("#migration-banner").hidden = true;
-      });
-      document.addEventListener("click", handleAction);
-
-      updateAuthMode();
-      showAuthScreen(true);
-      if (!supabaseClient) {
-        setAuthMessage("云端连接尚未配置完成。", "error");
-        setSyncState("未配置", "error");
-      } else {
-        supabaseClient.auth.onAuthStateChange((eventName, session) => {
-          window.setTimeout(() => handleSession(session, eventName), 0);
-        });
-        supabaseClient.auth.getSession().then(({ data }) => handleSession(data.session));
+      const migration=/(网站已迁移|永久迁移|moved permanently)/i.test(page.body);
+      if(migration){const target=page.links.find(link=>RECRUIT.test(link.url));if(target){const route=campusRouteFromMigration(page,target.url);const result=await walk(route||target.url,{parent:url,fromCampus:fromCampus||CAMPUS.test(page.title+' '+page.metadata),depth:depth+1});if(result)return result;}return null;}
+      const campusLinks=page.links.filter(link=>CAMPUS.test(link.title+' '+link.url)&&!BAD_TITLE.test(link.title)&&link.url!==url).sort((a,b)=>(CAMPUS.test(b.title)?1:0)-(CAMPUS.test(a.title)?1:0));
+      const currentIsCampus=CAMPUS.test(new URL(url).pathname+' '+new URL(url).hash+' '+new URL(url).hostname)||CAMPUS.test(page.title);
+      const contentIsCampus=CAMPUS.test(page.title+' '+page.metadata+' '+page.body.slice(0,12000));
+      if(currentIsCampus&&contentIsCampus&&(identity||inherited)){session.evidence.push({url,title:page.title,via:parent||null});return outcome(url,session.evidence);}
+      if(campusLinks.length){session.evidence.push({url,title:page.title});for(const link of campusLinks.slice(0,2)){const result=await walk(link.url,{parent:url,fromCampus:true,depth:depth+1});if(result)return result;}}
+      if(!fromCampus){const careerLinks=page.links.filter(link=>RECRUIT.test(link.title+' '+link.url)&&!BAD_TITLE.test(link.title)&&link.url!==url);for(const link of careerLinks.slice(0,2)){const result=await walk(link.url,{parent:url,depth:depth+1});if(result)return result;}}
+      return null;
+    }
+    try{
+      const query=encodeURIComponent(`${company} 校园招聘 官网`);
+      const endpoints=[`https://html.duckduckgo.com/html/?q=${query}`,`http://www.bing.com/search?format=rss&q=${query}`,`https://www.google.com/search?q=${query}`,`https://www.baidu.com/s?wd=${query}`];
+      const corporate=[];
+      for(const endpoint of endpoints){if(controller.signal.aborted||session.reads>=7)break;let text;try{text=await fetchContent(endpoint,{signal:controller.signal});session.successful++;}catch{continue;}const ranked=rank(parseResults(text),company);corporate.push(...ranked.filter(item=>item.score<65));for(const item of ranked.filter(item=>item.score>=65).slice(0,3)){const result=await walk(item.url);if(result)return result;}
+        // After trying two independent search indexes, follow an observed company
+        // homepage if the index exposes no verifiable recruitment entry.
+        if(endpoint===endpoints[1])for(const item of corporate.splice(0,2)){const result=await walk(item.url);if(result)return result;}
       }
-    })();
-  </script>
+      for(const item of corporate.slice(0,2)){const result=await walk(item.url);if(result)return result;}
+      return {url:'',candidates:[],source:'search',checkedAt:Date.now(),error:!session.successful,timedOut:controller.signal.aborted};
+    }finally{clearTimeout(timer);}
+  }
+  async function pump(){if(active||!queue.length)return;active=true;const job=queue.shift();try{const result=await discover(job.company);recent.set(key(job.company),result);job.resolve(result);}catch{job.resolve({url:'',candidates:[],error:true,checkedAt:Date.now()});}finally{pending.delete(key(job.company));active=false;void pump();}}
+  function lookup(company,{priority=false}={}){const name=String(company||'').trim(),normalized=key(name);if(normalized.length<2||name.length>100)return Promise.resolve({url:'',candidates:[],invalid:true});if(pending.has(normalized))return pending.get(normalized);const promise=new Promise(resolve=>{const job={company:name,resolve};if(priority)queue.unshift(job);else queue.push(job);});pending.set(normalized,promise);void pump();return promise;}
+  function known(company){const result=recent.get(key(company));return result&&Date.now()-result.checkedAt<120000?result:null;}
+  return Object.freeze({key,companyMatches,validURL,known,lookup,rank,parseResults,readPage,literalCampusLinks,cleanResultURL,campusRouteFromMigration});
+})();
+
+</script>
+<script>const ICONS = {"briefcase":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"7\" width=\"18\" height=\"14\" rx=\"3\"/><path d=\"M8 7V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v3M3 12a24 24 0 0 0 18 0M10 12v3h4v-3\"/></svg>","plus":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"5\"/><path d=\"M12 8v8M8 12h8\"/></svg>","progress":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 12a8 8 0 1 0 3-6.3M4 4v5h5\"/><path d=\"m9 12 2 2 4-4\"/></svg>","grid":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"4\"/><path d=\"M3 9h18M9 9v12\"/></svg>","search":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"10.5\" cy=\"10.5\" r=\"6.5\"/><path d=\"m16 16 4.5 4.5\"/></svg>","refresh":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 7v5h-5M4 17v-5h5M5.2 8a7.5 7.5 0 0 1 12.3-3l2.5 3M4 16l2.5 3A7.5 7.5 0 0 0 18.8 16\"/></svg>","globe":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><ellipse cx=\"12\" cy=\"12\" rx=\"4\" ry=\"9\"/><path d=\"M3 12h18\"/></svg>","clock":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/></svg>","lock":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"5\" y=\"10\" width=\"14\" height=\"11\" rx=\"3\"/><path d=\"M8 10V7a4 4 0 0 1 8 0v3M12 14v3\"/></svg>","eye":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/></svg>","external":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.65\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M14 3h7v7M10 14 21 3M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5\"/></svg>"};
+(() => {
+  'use strict';
+  const $=(selector,root=document)=>root.querySelector(selector);
+  const $$=(selector,root=document)=>Array.from(root.querySelectorAll(selector));
+  const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const key=CampusFinder.key, validURL=CampusFinder.validURL;
+  const STATUS=['已投递','笔试完','一面面试完','二面面试完','三面面试完','等待Offer','已结束'];
+  const STATUS_LABEL=['已投递','已完成笔试','已完成一面','已完成二面','已完成三面','等待 Offer','已结束'];
+  const CHANNELS=['官网','公众号','线下','其他'];
+  const STORAGE_KEY='local-career-application-ledger-v1';
+  const PUBLIC_URL='https://snowball1126.github.io/internship-offer-count/';
+  const client=window.supabase?.createClient('https://qklxxwsmhdcxqgytlaru.supabase.co','sb_publishable_egOIdrI7qRKK9o2oKkpLBg_S7Nw0RDA',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  const META={stats:['记录新的投递','把投过的岗位记下来，进度随时可查。'],status:['跟进每一步进展','从笔试到 Offer，每次进展都值得记下。'],summary:['你的投递汇总','岗位、进度和校招入口，都在这里。']};
+  let records=[],user=null,ready=false,view='stats',epoch=0,loadSequence=0,loadingUser='',authMode='login',recovery=false;
+  let toastTimer,previewTimer,draftChoice=null,draftSequence=0,lookupContext=null,lookupSequence=0,discoverySequence=0,discoveryCompany='';
+  let editingId=null,editingOriginal=null,deletingId=null,pendingImport=[],lastFocus=null,activeWrites=0,syncError=false;
+  const recordLocks=new Set(),lookupStates=new Map(),enrichmentAttempts=new Set();
+  const label=status=>STATUS_LABEL[STATUS.indexOf(status)]||status;
+  const icon=name=>ICONS[name]||ICONS.globe;
+  function date(value,short=false){const d=new Date(value);if(Number.isNaN(d.getTime()))return '—';return new Intl.DateTimeFormat('zh-CN',short?{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}:{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(d).replaceAll('/','-');}
+  function newId(){return crypto.randomUUID();}
+  function toast(message,type='success'){clearTimeout(toastTimer);$('#toast-root').innerHTML=`<div class="toast ${type==='error'?'is-error':''}"><span class="toast-icon">${type==='error'?'!':'✓'}</span><span>${esc(message)}</span></div>`;toastTimer=setTimeout(()=>{$('#toast-root').innerHTML='';},3600);}
+  function setSync(text,state='ready'){$('#sync-badge').textContent=text;$('#sync-badge').className=`sync-badge ${state==='busy'?'is-busy':state==='error'?'is-error':''}`;$('#profile-sync-state').textContent=text;}
+  function updateSync(){if(activeWrites)setSync('正在保存…','busy');else if(syncError)setSync('同步未完成','error');else setSync(ready?'已同步到云端':'正在同步…',ready?'ready':'busy');}
+  function statusBadge(status){const type=status==='已投递'?'applied':status==='笔试完'?'test':status==='等待Offer'?'offer':status==='已结束'?'closed':'interview';return `<span class="status-badge status-${type}">${esc(label(status))}</span>`;}
+  function setMessage(id,text,success=false){const node=$(id);node.textContent=text;node.classList.toggle('is-success',success);if(id==='#auth-message')node.classList.toggle('is-error',!!text&&!success);}
+  function errorText(error){const message=String(error?.message||error||'');if(/email.*not.*confirm/i.test(message))return '邮箱还未验证。请打开注册邮件里的验证链接，再回来登录。';if(/invalid.*(login|credentials)/i.test(message))return '邮箱或密码不正确，请检查后重试。';if(/already.*registered/i.test(message))return '这个邮箱已注册，请直接登录。';if(/rate.*limit|too many|security purposes/i.test(message))return '操作有些频繁，请稍等一分钟再试。';if(/fetch|network|load failed|timeout/i.test(message))return '网络暂时没有连上，请检查网络后重试。';if(/password.*same|same.*password/i.test(message))return '新密码不能与原密码相同。';if(/password/i.test(message))return '密码不符合要求，请使用至少 6 位的密码。';if(/session|jwt|expired/i.test(message))return '登录已过期，请重新登录后再试。';return '操作未完成，请稍后重试。';}
+  function redirectURL(){return /^https?:$/.test(location.protocol)?`${location.origin}${location.pathname}`:PUBLIC_URL;}
+  function displayName(){return String(user?.user_metadata?.display_name||user?.user_metadata?.username||user?.user_metadata?.name||user?.email?.split('@')[0]||'我的账号');}
+  function renderProfile(){const name=displayName();$$('[data-profile-name]').forEach(node=>node.textContent=name);$$('[data-avatar]').forEach(node=>node.textContent=[...name][0]?.toUpperCase()||'我');$('#account-email').textContent=user?.email||'';$('#profile-email').textContent=user?.email||'';$('#profile-created').textContent=user?.created_at?new Date(user.created_at).toLocaleDateString('zh-CN'):'—';$('#page-eyebrow').textContent=new Intl.DateTimeFormat('zh-CN',{month:'long',day:'numeric',weekday:'long'}).format(new Date());}
+  function openDialog(id){const node=$(id);lastFocus=document.activeElement;node.showModal();document.body.style.overflow='hidden';}
+  function closeDialog(node){if(node?.open)node.close();if(!document.querySelector('dialog[open]'))document.body.style.overflow='';}
+  $$('dialog').forEach(node=>{node.addEventListener('close',()=>{if(!document.querySelector('dialog[open]'))document.body.style.overflow='';if(lastFocus?.isConnected)lastFocus.focus({preventScroll:true});});node.addEventListener('click',event=>{if(event.target===node){const rect=node.getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)closeDialog(node);}});});
+  function authScreen(show){$('#auth-screen').hidden=!show;$('#app-shell').hidden=show;}
+  function updateAuthMode(){const signup=authMode==='signup';$('#signup-name-field').hidden=!signup;$('#auth-username').required=signup;$('#auth-form').hidden=recovery;$('#recovery-form').hidden=!recovery;$('.auth-actions').hidden=recovery;$('#auth-resend').hidden=true;$('#auth-title').textContent=recovery?'设置新密码':signup?'开始记录你的求职':'欢迎回来';$('#auth-subtitle').textContent=recovery?'设置完成后，继续跟进你的投递。':signup?'创建一个账号，手机和电脑都能用。':'登录你的账号，接着跟进每一次投递。';$('#auth-submit').textContent=signup?'创建账号':'登录';$('#auth-mode-toggle').textContent=signup?'已有账号，去登录':'创建新账号';$('#auth-reset').hidden=signup;$('#auth-password').autocomplete=signup?'new-password':'current-password';$('#auth-password').placeholder=signup?'设置密码，至少 6 位':'输入你的密码';setMessage('#auth-message','');}
+  function validateName(name){return [...name].length>=2&&[...name].length<=24&&!/[\u0000-\u001f\u007f]/.test(name);}
+  async function submitAuth(event){event.preventDefault();if(!client){setMessage('#auth-message','登录服务未能加载，请刷新页面或检查网络。');return;}const email=$('#auth-email').value.trim(),password=$('#auth-password').value,name=$('#auth-username').value.trim();if(!/^\S+@\S+\.\S+$/.test(email)){setMessage('#auth-message','请输入有效的邮箱地址。');$('#auth-email').focus();return;}if(password.length<6){setMessage('#auth-message','密码至少需要 6 位。');$('#auth-password').focus();return;}if(authMode==='signup'&&!validateName(name)){setMessage('#auth-message','用户名需要 2–24 个字符。');$('#auth-username').focus();return;}const button=$('#auth-submit');if(button.disabled)return;button.disabled=true;const signup=authMode==='signup';button.textContent=signup?'正在创建…':'正在登录…';setMessage('#auth-message','');try{const result=signup?await client.auth.signUp({email,password,options:{data:{display_name:name},emailRedirectTo:redirectURL()}}):await client.auth.signInWithPassword({email,password});if(result.error){if(/email.*not.*confirm/i.test(result.error.message))$('#auth-resend').hidden=false;throw result.error;}if(signup&&!result.data.session){setMessage('#auth-message','验证邮件已发送。请打开邮件中的链接完成验证，再回来登录。',true);$('#auth-resend').hidden=false;}else{setMessage('#auth-message','登录成功，正在读取投递记录…',true);if(result.data.session)await handleSession(result.data.session,'SIGNED_IN');}}catch(error){setMessage('#auth-message',errorText(error));}finally{button.disabled=false;button.textContent=authMode==='signup'?'创建账号':'登录';}}
+  async function emailAction(kind){if(!client)return;const email=$('#auth-email').value.trim();if(!/^\S+@\S+\.\S+$/.test(email)){setMessage('#auth-message','请先填写你的注册邮箱。');$('#auth-email').focus();return;}const button=$(kind==='resend'?'#auth-resend':'#auth-reset');if(button.disabled)return;button.disabled=true;try{const {error}=kind==='resend'?await client.auth.resend({type:'signup',email,options:{emailRedirectTo:redirectURL()}}):await client.auth.resetPasswordForEmail(email,{redirectTo:redirectURL()});if(error)throw error;setMessage('#auth-message',kind==='resend'?'验证邮件已发送，也可以检查垃圾邮件文件夹。':'重置密码邮件已发送，请从邮件链接设置新密码。',true);}catch(error){setMessage('#auth-message',errorText(error));}finally{setTimeout(()=>button.disabled=false,1000);}}
+  async function recoverPassword(event){event.preventDefault();const password=$('#recovery-password').value;if(password.length<6){setMessage('#auth-message','新密码至少需要 6 位。');return;}if(password!==$('#recovery-confirm').value){setMessage('#auth-message','两次输入的密码不一致。');return;}const button=$('#recovery-submit');button.disabled=true;try{const {error}=await client.auth.updateUser({password});if(error)throw error;recovery=false;$('#recovery-form').reset();const {data}=await client.auth.getSession();await handleSession(data.session,'RECOVERY_FINISHED');}catch(error){setMessage('#auth-message',errorText(error));}finally{button.disabled=false;}}
+  function mapRecord(item){return {id:String(item.id),company:String(item.company||'').trim(),title:String(item.title||'').trim(),applicationMethod:CHANNELS.includes(item.application_method)?item.application_method:'其他',status:STATUS.includes(item.status)?item.status:'已投递',website:validURL(item.website),websiteSource:String(item.website_source||''),appliedAt:Date.parse(item.applied_at)||Date.now()};}
+  function cloudRecord(record,owner=user?.id){return {id:record.id,user_id:owner,company:record.company,title:record.title,application_method:record.applicationMethod,status:record.status,website:record.website||'',website_source:record.websiteSource||'',applied_at:new Date(record.appliedAt).toISOString(),updated_at:new Date().toISOString()};}
+  function oldRecords(){try{const parsed=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');return Array.isArray(parsed)?parsed.filter(x=>x&&x.company&&x.title&&STATUS.includes(x.status)).map(x=>({id:newId(),company:String(x.company),title:String(x.title),applicationMethod:CHANNELS.includes(x.applicationMethod)?x.applicationMethod:'其他',status:x.status,website:validURL(x.website),websiteSource:x.websiteSource==='manual'?'manual':x.websiteSource||'',appliedAt:Number(x.appliedAt)>0?Number(x.appliedAt):Date.now()})):[];}catch{return [];}}
+  async function handleSession(session,event=''){const next=session?.user||null;if(event==='PASSWORD_RECOVERY'){user=next;recovery=true;updateAuthMode();authScreen(true);return;}const same=next?.id&&next.id===user?.id;if(same&&event!=='RECOVERY_FINISHED'){user=next;renderProfile();return;}epoch++;loadSequence++;activeWrites=0;syncError=false;recordLocks.clear();enrichmentAttempts.clear();lookupStates.clear();lookupSequence++;discoverySequence++;draftSequence++;clearTimeout(previewTimer);user=next;records=[];ready=false;draftChoice=null;editingId=null;deletingId=null;pendingImport=[];loadingUser='';$$('dialog').forEach(closeDialog);$('#application-form').reset();$('#status-company-search').value='';$('#summary-search').value='';$('#summary-status-filter').value='';$('#summary-application-filter').value='';$('#discovery-form').reset();$('#discovery-result').innerHTML='';discoveryCompany='';$('#migration-banner').hidden=true;$('#profile-form').reset();$('#edit-form').reset();recovery=false;updateAuthMode();renderAll();renderPreview();if(!user){setSync('未登录');authScreen(true);return;}renderProfile();authScreen(false);switchView('stats',false);await loadRecords();}
+  async function loadRecords(){if(!user||!client)return;const owner=user.id,currentEpoch=epoch,seq=++loadSequence;loadingUser=owner;setSync('正在同步…','busy');$('#refresh-records').disabled=true;try{const {data,error}=await client.from('applications').select('*').eq('user_id',owner).order('applied_at',{ascending:false});if(currentEpoch!==epoch||seq!==loadSequence)return;if(error)throw error;records=(data||[]).map(mapRecord).filter(x=>x.company&&x.title);ready=true;syncError=false;pendingImport=records.length?[]:oldRecords();$('#migration-banner').hidden=!pendingImport.length;renderAll();enrichRecords();}catch(error){if(currentEpoch!==epoch||seq!==loadSequence)return;syncError=true;toast('记录暂时未能同步，请点击刷新重试。','error');}finally{if(currentEpoch===epoch&&seq===loadSequence){loadingUser='';$('#refresh-records').disabled=false;updateSync();}}}
+  async function write(operation){if(!user||!ready){toast('记录还未同步完成，请稍后再试。','error');return null;}const currentEpoch=epoch;activeWrites++;updateSync();try{const result=await operation(user.id);if(epoch!==currentEpoch)return null;if(result.error)throw result.error;syncError=false;return result;}catch(error){if(epoch===currentEpoch){syncError=true;toast(errorText(error),'error');}return null;}finally{if(epoch===currentEpoch){activeWrites=Math.max(0,activeWrites-1);updateSync();}}}
+  function empty(title,text,action=false){return `<div class="empty-state"><div class="empty-icon">${icon('briefcase')}</div><h3>${esc(title)}</h3><p>${esc(text)}</p>${action?'<button class="text-button" type="button" data-action="go-add">记录第一条投递</button>':''}</div>`;}
+  function renderMetrics(){const total=records.length,offer=records.filter(r=>r.status==='等待Offer').length,ended=records.filter(r=>r.status==='已结束').length;for(const prefix of ['stats','summary'])for(const [k,v] of Object.entries({total,offer,ended,progress:total-offer-ended}))$(`#${prefix}-${k}`).textContent=v;$('#nav-total').textContent=total;$('#journey').innerHTML=STATUS.map((s,i)=>`<li><span class="journey-dot" aria-hidden="true">${i===0?'✓':i===5?'☆':''}</span><span>${esc(label(s))}</span><small>${records.filter(r=>r.status===s).length}</small></li>`).join('');}
+  function renderRecent(){$('#recent-count').textContent=records.length?`共 ${records.length} 个岗位`:'等待第一条记录';$('#recent-list').innerHTML=records.length?records.slice(0,5).map(r=>`<div class="recent-item"><span class="company-avatar" aria-hidden="true">${esc([...r.company][0])}</span><div class="recent-main"><span class="recent-company">${esc(r.company)}</span><span class="recent-role">${esc(r.title)}</span></div><span class="recent-time">${esc(date(r.appliedAt,true))}</span>${statusBadge(r.status)}</div>`).join(''):'<div class="empty-inline">从上方记录第一份投递，接下来的进展都留在这里。</div>';}
+  function recordWebsite(record){if(record.website)return {url:record.website,source:record.websiteSource,kind:'campus'};const state=lookupStates.get(key(record.company));return state?.url?state:null;}
+  function external(url,text='打开校招',className='website-link'){return validURL(url)?`<a class="${className}" href="${esc(validURL(url))}" target="_blank" rel="noopener noreferrer" title="${esc(validURL(url))}">${esc(text)}${icon('external')}</a>`:'';}
+  function websiteDisplay(record){const found=recordWebsite(record);if(found?.url)return external(found.url,'打开校招');return '<span class="website-state" aria-label="暂无已确认的校招入口">—</span>';}
+  function renderStatus(){const query=key($('#status-company-search').value);const matched=records.filter(r=>!query||key(r.company).includes(query));const groups=new Map();for(const r of matched){if(!groups.has(r.company))groups.set(r.company,[]);groups.get(r.company).push(r);}$('#status-results').innerHTML=matched.length?[...groups].map(([company,list])=>`<article class="card company-card"><div class="company-card-header"><div><h3>${esc(company)}</h3><p>${list.length} 个岗位，分别跟进</p></div><span class="company-count">${list.filter(r=>r.status!=='已结束').length} 个未结束</span></div>${list.map(r=>`<div class="role-card"><div class="role-summary"><h4>${esc(r.title)}</h4><div class="role-meta"><span>投递于 ${esc(date(r.appliedAt))}</span>${statusBadge(r.status)}</div><div class="role-website">${websiteDisplay(r)}</div></div><div class="state-actions"><span class="state-actions-label">选择新进度，自动保存</span><div class="state-buttons">${STATUS.map(s=>`<button class="state-button ${s===r.status?'is-current':''}" type="button" data-action="update-status" data-id="${esc(r.id)}" data-status="${esc(s)}" aria-pressed="${s===r.status}" ${recordLocks.has(r.id)?'disabled':''}>${esc(label(s))}</button>`).join('')}</div></div></div>`).join('')}</article>`).join(''):empty(records.length?'没有找到这家公司的记录':'还没有需要跟进的投递',records.length?'试试公司的简称，或清空搜索查看全部记录。':'记录投过的岗位后，就可以在这里更新面试进度。',!records.length);}
+  function filteredRecords(){const q=key($('#summary-search').value),s=$('#summary-status-filter').value,m=$('#summary-application-filter').value;return records.filter(r=>(!q||key(r.company).includes(q)||key(r.title).includes(q)||r.website.toLowerCase().includes(q))&&(!s||r.status===s)&&(!m||r.applicationMethod===m));}
+  function actions(r){return `<div class="table-actions"><button class="table-action" type="button" data-action="edit" data-id="${esc(r.id)}" aria-label="编辑 ${esc(r.company)} ${esc(r.title)}">编辑</button><button class="table-action is-danger" type="button" data-action="delete" data-id="${esc(r.id)}" aria-label="删除 ${esc(r.company)} ${esc(r.title)}">删除</button></div>`;}
+  function renderSummary(){const list=filteredRecords();$('#summary-count').textContent=`${list.length} 个岗位`;$('#summary-filter-note').textContent=list.length!==records.length?`筛选自 ${records.length} 条记录`:'';if(!list.length){const content=empty(records.length?'没有符合条件的投递':'从第一份投递开始',records.length?'调整或重置筛选，查看其他岗位。':'查找校招入口，再记录你投过的岗位。',!records.length);$('#summary-body').innerHTML=`<tr><td colspan="7">${content}</td></tr>`;$('#mobile-records').innerHTML=content;return;}$('#summary-body').innerHTML=list.map(r=>`<tr data-record-id="${esc(r.id)}"><td><span class="company-cell">${esc(r.company)}</span></td><td><span class="role-cell">${esc(r.title)}</span></td><td>${websiteDisplay(r)}</td><td class="time-cell">${esc(date(r.appliedAt))}</td><td>${esc(r.applicationMethod)}</td><td>${statusBadge(r.status)}</td><td>${actions(r)}</td></tr>`).join('');$('#mobile-records').innerHTML=list.map(r=>`<article class="mobile-record" data-record-id="${esc(r.id)}"><div class="mobile-record-top"><h3>${esc(r.company)}</h3>${statusBadge(r.status)}</div><p class="mobile-record-title">${esc(r.title)}</p><div class="mobile-record-meta"><span>${esc(date(r.appliedAt))}</span><span>·</span><span>${esc(r.applicationMethod)}投递</span></div><div class="mobile-record-bottom"><div>${websiteDisplay(r)}</div>${actions(r)}</div></article>`).join('');}
+  function renderAll(){renderMetrics();renderRecent();renderStatus();renderSummary();}
+  function switchView(next,scroll=true){if(!META[next])return;view=next;$$('.view').forEach(node=>node.hidden=node.id!==`view-${next}`);$$('.nav-button').forEach(button=>{const active=button.dataset.view===next;button.classList.toggle('is-active',active);if(active)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});$('#page-title').textContent=META[next][0];$('#page-subtitle').textContent=META[next][1];if(scroll)window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});}
+  function renderWebsites(){renderStatus();renderSummary();renderPreview();if($('#lookup-dialog').open&&lookupContext)renderLookup(lookupContext.company,lookupStates.get(key(lookupContext.company))||CampusFinder.known(lookupContext.company));}
+  function resolvedFor(company){if(draftChoice&&key(draftChoice.company)===key(company))return draftChoice;const saved=records.find(r=>key(r.company)===key(company)&&r.website);if(saved)return {url:saved.website,source:saved.websiteSource,company:saved.company,kind:'campus'};return CampusFinder.known(company);}
+  async function persistResolved(company,result,{recordId=null,manual=false}={}){if(!user||!ready||!result?.url)return 0;const owner=user.id,currentEpoch=epoch;let targets=records.filter(r=>recordId?r.id===recordId:key(r.company)===key(company)&&r.applicationMethod==='官网'&&!r.website);if(!targets.length)return 0;let count=0;const groups=new Map();for(const r of targets){if(!groups.has(r.company))groups.set(r.company,[]);groups.get(r.company).push(r.id);}for(const [exactCompany,ids] of groups){const updated=await write(()=>{let query=client.from('applications').update({website:validURL(result.url),website_source:manual?'manual':result.source||'search',updated_at:new Date().toISOString()}).eq('user_id',owner).eq('company',exactCompany).in('id',ids);if(!recordId)query=query.eq('website','');return query.select('id,company,website,website_source');});if(currentEpoch!==epoch)return 0;if(!updated)return -1;for(const row of updated.data||[]){const record=records.find(r=>r.id===row.id&&r.company===row.company);if(record){record.website=validURL(row.website);record.websiteSource=row.website_source;count++;}}}renderWebsites();return count;}
+  async function findCompany(company,{force=false,persist=true}={}){const currentEpoch=epoch,companyKey=key(company);if(companyKey.length<2)return {url:'',invalid:true};const known=resolvedFor(company);if(!force&&known?.url){lookupStates.set(companyKey,known);if(persist&&currentEpoch===epoch)await persistResolved(company,known);return known;}lookupStates.set(companyKey,{pending:true});renderWebsites();const result=await CampusFinder.lookup(company,{priority:force});if(epoch!==currentEpoch)return result;lookupStates.set(companyKey,result);if(result.url&&persist)await persistResolved(company,result);renderWebsites();return result;}
+  function enrichRecords(){const companies=[...new Set(records.filter(r=>r.applicationMethod==='官网'&&!r.website).map(r=>r.company))];for(const company of companies){const attempt=`${epoch}:${key(company)}`;if(enrichmentAttempts.has(attempt))continue;enrichmentAttempts.add(attempt);void findCompany(company);}}
+  function renderPreview(){
+    const company=$('#company-name').value.trim(),method=$('#application-method').value,state=lookupStates.get(key(company));
+    const result=state?.pending&&!draftChoice?null:resolvedFor(company);
+    $('#campus-preview-field').hidden=method!=='官网'||!company||(!state?.pending&&!result?.url);
+    if(state?.pending&&!result?.url){$('#campus-preview').innerHTML='<span class="preview-symbol"><span class="loading-spinner"></span></span><div class="preview-copy"><strong>正在实时匹配校招官网…</strong><p>可以继续填写岗位，找到后自动保存。</p></div>';return;}
+    if(!result?.url){$('#campus-preview').innerHTML='';return;}
+    $('#campus-preview').innerHTML='<span class="preview-symbol">'+icon('globe')+'</span><div class="preview-copy"><strong>已匹配校招官网</strong><p>'+esc(new URL(result.url).hostname)+'</p></div><div class="preview-actions">'+external(result.url,'打开')+'<button type="button" data-action="preview-find">修改</button></div>';
+  }
+  function companyChanged(){clearTimeout(previewTimer);draftSequence++;draftChoice=null;const company=$('#company-name').value.trim();renderPreview();if(key(company).length<2||$('#application-method').value!=='官网')return;const seq=draftSequence;previewTimer=setTimeout(()=>{if(seq===draftSequence)void findCompany(company,{force:true,persist:false});},1000);}
+  async function saveApplication(event){event.preventDefault();const company=$('#company-name').value.trim(),jobs=$('#job-titles').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean),method=$('#application-method').value,status=$('#initial-status').value;for(const node of [$('#company-name'),$('#job-titles')])node.removeAttribute('aria-invalid');if(!company){$('#company-name').setAttribute('aria-invalid','true');$('#company-name').focus();toast('先填写公司名称。','error');return;}if(!jobs.length){$('#job-titles').setAttribute('aria-invalid','true');$('#job-titles').focus();toast('至少填写一个岗位名称。','error');return;}if(company.length>100||jobs.length>100||jobs.some(x=>x.length>2000)){toast('一次最多记录 100 个岗位，请适当缩短公司或岗位名称。','error');return;}if(!CHANNELS.includes(method)||!STATUS.includes(status))return;const button=$('#save-application');if(button.disabled)return;button.disabled=true;button.textContent='正在保存…';const owner=user?.id,currentEpoch=epoch;const website=method==='官网'?resolvedFor(company):null;const additions=jobs.map(title=>({id:newId(),company,title,applicationMethod:method,status,website:website?.url||'',websiteSource:website?.url?website.source||'search':'',appliedAt:Date.now()}));try{const result=await write(()=>client.from('applications').insert(additions.map(r=>cloudRecord(r,owner))));if(!result||currentEpoch!==epoch)return;records=[...additions,...records];event.target.reset();draftChoice=null;draftSequence++;clearTimeout(previewTimer);renderAll();renderPreview();enrichRecords();toast(`已保存 ${additions.length} 个岗位${website?.url?'，校招入口已收好':''}`);}finally{button.disabled=false;button.innerHTML=`${icon('plus')}保存投递`;}}
+  async function updateStatus(id,status){const record=records.find(r=>r.id===id);if(!record||!STATUS.includes(status)||record.status===status||recordLocks.has(id))return;recordLocks.add(id);renderStatus();const currentEpoch=epoch;try{const result=await write(owner=>client.from('applications').update({status,updated_at:new Date().toISOString()}).eq('id',id).eq('user_id',owner).select('id,status'));if(result&&currentEpoch===epoch&&result.data?.length){record.status=status;renderAll();toast(`已更新为「${label(status)}」`);}else if(result)toast('这条记录已发生变化，请刷新后重试。','error');}finally{recordLocks.delete(id);renderStatus();}}
+  function openEdit(id){const record=records.find(r=>r.id===id);if(!record)return;editingId=id;editingOriginal={...record};$('#edit-company').value=record.company;$('#edit-job').value=record.title;$('#edit-website').value=record.website||recordWebsite(record)?.url||'';editingOriginal.displayedWebsite=$('#edit-website').value;$('#edit-method').value=record.applicationMethod;$('#edit-status').value=record.status;$('#edit-time').textContent=`投递于 ${date(record.appliedAt)} · 时间保持不变`;setMessage('#edit-message','');openDialog('#edit-dialog');}
+  async function saveEdit(event){event.preventDefault();const id=editingId,record=records.find(r=>r.id===id);if(!record||recordLocks.has(id))return;const company=$('#edit-company').value.trim(),title=$('#edit-job').value.trim(),raw=$('#edit-website').value.trim(),method=$('#edit-method').value,status=$('#edit-status').value;if(!company||!title){setMessage('#edit-message','请填写公司和岗位名称。');return;}if(company.length>100||title.length>2000){setMessage('#edit-message','公司或岗位名称过长，请缩短后保存。');return;}if(raw&&!validURL(raw)){setMessage('#edit-message','请填写有效的 http 或 https 网址。');$('#edit-website').focus();return;}let website=validURL(raw),source=website?(website===editingOriginal.displayedWebsite?record.websiteSource||'search':'manual'):'';if(key(company)!==key(editingOriginal.company)&&raw===editingOriginal.displayedWebsite){const match=CampusFinder.known(company);website=method==='官网'?match?.url||'':'';source=website?'search':'';}const patch={company,title,application_method:method,status,website,website_source:source,updated_at:new Date().toISOString()};const button=$('#edit-save');button.disabled=true;recordLocks.add(id);const currentEpoch=epoch;try{const result=await write(owner=>client.from('applications').update(patch).eq('id',id).eq('user_id',owner).select('*'));if(!result||currentEpoch!==epoch){setMessage('#edit-message','未能保存，请检查网络后重试。');return;}if(!result.data?.length){setMessage('#edit-message','这条记录已发生变化，请刷新后重试。');return;}const index=records.findIndex(r=>r.id===id);if(index!==-1)records[index]=mapRecord(result.data[0]);closeDialog($('#edit-dialog'));editingId=null;renderAll();enrichmentAttempts.delete(`${epoch}:${key(company)}`);enrichRecords();toast('修改已保存');}finally{button.disabled=false;recordLocks.delete(id);}}
+  async function deleteRecord(){const id=deletingId,button=$('#confirm-delete');if(!id||button.disabled)return;button.disabled=true;const currentEpoch=epoch;try{const result=await write(owner=>client.from('applications').delete().eq('id',id).eq('user_id',owner));if(!result||currentEpoch!==epoch){setMessage('#delete-message','未能删除，请稍后重试。');return;}records=records.filter(r=>r.id!==id);closeDialog($('#delete-dialog'));deletingId=null;renderAll();toast('投递已删除');}finally{button.disabled=false;}}
+  async function saveProfile(event){event.preventDefault();const name=$('#profile-username').value.trim();if(!validateName(name)){setMessage('#profile-message','用户名需要 2–24 个字符。');return;}if(!user)return;const currentEpoch=epoch,button=$('#profile-save');if(button.disabled)return;button.disabled=true;setMessage('#profile-message','');try{const {data,error}=await client.auth.updateUser({data:{display_name:name}});if(epoch!==currentEpoch)return;if(error)throw error;user=data.user;renderProfile();setMessage('#profile-message','用户名已保存，其他设备登录后也会显示。',true);toast('用户名已更新');}catch(error){if(epoch===currentEpoch)setMessage('#profile-message',errorText(error));}finally{button.disabled=false;}}
+  async function importRecords(){if(!pendingImport.length)return;const button=$('#migration-import');if(button.disabled)return;button.disabled=true;const currentEpoch=epoch,items=pendingImport.map(r=>({...r,id:newId()}));try{const result=await write(owner=>client.from('applications').insert(items.map(r=>cloudRecord(r,owner))));if(!result||currentEpoch!==epoch)return;records=[...items,...records].sort((a,b)=>b.appliedAt-a.appliedAt);pendingImport=[];$('#migration-banner').hidden=true;renderAll();enrichRecords();toast(`已导入 ${items.length} 条旧记录`);}finally{button.disabled=false;}}
+  function renderLookup(company,result){$('#lookup-company-label').textContent=`${company} · 选择用于这家公司的招聘入口`;const current=resolvedFor(company),items=[];if(current?.url)items.push({...current,title:current.title||'当前招聘入口'});if(result?.url&&!items.some(x=>x.url===result.url))items.push(result);for(const item of result?.candidates||[])if(!items.some(x=>x.url===item.url))items.push(item);$('#lookup-results').innerHTML=(result?.pending?'<div class="loading-row"><span class="loading-spinner"></span>正在依次查询招聘入口，请稍候…</div>':'')+items.map(item=>`<div class="candidate"><strong>${esc(item.title||company+'招聘入口')}</strong><p class="candidate-url">${esc(item.url)}</p><div class="candidate-links">${external(item.url,'打开查看')}<button type="button" class="text-button" data-action="choose-website" data-url="${esc(item.url)}">使用此链接</button></div></div>`).join('')+(!items.length&&!result?.pending?`<p class="lookup-help">${result?.error?'搜索服务暂时没有响应。可以重试，或用下面的搜索入口查找。':'还没有找到能确认的校招入口。试试公司全称，或补充一个正确网址。'}</p>`:'')+(!result?.pending?'<button class="text-button" type="button" data-action="retry-lookup">重新联网查找</button>':'');const q=encodeURIComponent(`${company} 校园招聘 官网`);$('#lookup-fallbacks').innerHTML=`<a href="https://www.baidu.com/s?wd=${q}" target="_blank" rel="noopener noreferrer">百度搜索 ↗</a><a href="https://www.bing.com/search?q=${q}" target="_blank" rel="noopener noreferrer">必应搜索 ↗</a><a href="https://www.google.com/search?q=${q}" target="_blank" rel="noopener noreferrer">Google 搜索 ↗</a>`;}
+  async function openLookup(company,{recordId=null,draft=false}={}){if(!company){$('#company-name').focus();toast('先填写公司名称。','error');return;}lookupContext={company,recordId,draft};lookupSequence++;$('#manual-website').value='';setMessage('#website-message','');renderLookup(company,lookupStates.get(key(company))||resolvedFor(company));openDialog('#lookup-dialog');if(!resolvedFor(company)?.url&&!lookupStates.get(key(company))?.pending)await findCompany(company,{persist:!draft});}
+  async function chooseWebsite(raw){const url=validURL(raw),context=lookupContext;if(!url){setMessage('#website-message','请填写有效的 http 或 https 网址。');return;}if(!context)return;const currentEpoch=epoch;const button=$('#manual-website-save');if(button.disabled)return;button.disabled=true;try{const chosen={url,company:context.company,source:'manual',kind:'campus'};let count=0;if(!context.draft)count=await persistResolved(context.company,chosen,{recordId:context.recordId,manual:true});if(epoch!==currentEpoch)return;if(count<0){setMessage('#website-message','网址未能同步，请重试。');return;}if(context.draft||key($('#company-name').value)===key(context.company))draftChoice=chosen;closeDialog($('#lookup-dialog'));renderWebsites();if(key(discoveryCompany)===key(context.company))renderDiscovery(context.company,chosen,count);toast(count?`校招入口已保存到 ${count} 条记录`:'已选择入口，保存投递时会一并记录');}finally{button.disabled=false;}}
+  function renderDiscovery(company,result,count=0){
+    if(result?.pending){$('#discovery-result').innerHTML='<div class="loading-row"><span class="loading-spinner"></span>正在搜索并核对校招官网…</div>';return;}
+    if(!result?.url){$('#discovery-result').innerHTML='';return;}
+    $('#discovery-result').innerHTML='<div class="campus-preview"><span class="preview-symbol">'+icon('globe')+'</span><div class="preview-copy"><strong>'+esc(company)+' · 校招官网</strong><p>'+esc(new URL(result.url).hostname)+(count>0?' · 已补充 '+count+' 条记录':'')+'</p></div><div class="preview-actions">'+external(result.url,'打开')+'<button type="button" data-action="discovery-add" data-company="'+esc(company)+'" data-url="'+esc(result.url)+'">记录投递</button></div></div>';
+  }
+  async function discover(event){event.preventDefault();const company=$('#discovery-company').value.trim();if(key(company).length<2){toast('请输入至少两个字符的公司名称。','error');return;}const seq=++discoverySequence,currentEpoch=epoch;discoveryCompany=company;renderDiscovery(company,{pending:true});const button=$('#discovery-submit');button.disabled=true;try{const result=await findCompany(company,{force:true,persist:false});if(seq!==discoverySequence||epoch!==currentEpoch)return;const count=result.url?await persistResolved(company,result):0;if(seq!==discoverySequence||epoch!==currentEpoch)return;renderDiscovery(company,result,count);if(count<0)toast('入口已找到，保存失败，请稍后重试。','error');else if(!result.url)toast(result.error?'搜索服务暂时不可用，可稍后重试。':'未找到可确认的校招官网。','error');}finally{if(seq===discoverySequence)button.disabled=false;}}
+  document.addEventListener('click',async event=>{const target=event.target.closest('button,[data-action]');if(!target)return;if(target.hasAttribute('data-close-dialog')){closeDialog(target.closest('dialog'));return;}if(target.hasAttribute('data-open-profile')){if(!user)return;$('#profile-username').value=displayName();setMessage('#profile-message','');openDialog('#profile-dialog');return;}if(target.dataset.togglePassword){const input=$(`#${target.dataset.togglePassword}`),show=input.type==='password';input.type=show?'text':'password';target.setAttribute('aria-label',show?'隐藏密码':'显示密码');target.setAttribute('aria-pressed',String(show));return;}const action=target.dataset.action,id=target.dataset.id;if(action==='go-add'){switchView('stats');$('#company-name').focus();}if(action==='update-status')await updateStatus(id,target.dataset.status);if(action==='edit')openEdit(id);if(action==='delete'){const r=records.find(r=>r.id===id);if(!r)return;deletingId=id;$('#delete-description').textContent=`${r.company} · ${r.title}`;setMessage('#delete-message','');openDialog('#delete-dialog');}if(action==='find-website'){const r=records.find(r=>r.id===id);if(r)await openLookup(r.company,{recordId:id});}if(action==='preview-find')await openLookup($('#company-name').value.trim(),{draft:true});if(action==='retry-lookup'&&lookupContext){const company=lookupContext.company;await findCompany(company,{force:true,persist:false});}if(action==='choose-website')await chooseWebsite(target.dataset.url);if(action==='discovery-more')await openLookup(discoveryCompany);if(action==='discovery-add'){$('#company-name').value=target.dataset.company;$('#application-method').value='官网';draftChoice={company:target.dataset.company,url:validURL(target.dataset.url),source:'manual',kind:'campus'};renderPreview();switchView('stats');$('#job-titles').focus();}});
+  $$('.nav-button').forEach(button=>button.addEventListener('click',()=>switchView(button.dataset.view)));
+  $('#auth-form').addEventListener('submit',submitAuth);$('#recovery-form').addEventListener('submit',recoverPassword);
+  $('#auth-mode-toggle').addEventListener('click',()=>{authMode=authMode==='login'?'signup':'login';updateAuthMode();});$('#auth-reset').addEventListener('click',()=>emailAction('reset'));$('#auth-resend').addEventListener('click',()=>emailAction('resend'));
+  $('#profile-form').addEventListener('submit',saveProfile);$('#signout-button').addEventListener('click',async()=>{const button=$('#signout-button');button.disabled=true;try{const {error}=await client.auth.signOut();if(error)throw error;await handleSession(null,'SIGNED_OUT');$('#auth-password').value='';}catch(error){setMessage('#profile-message',errorText(error));}finally{button.disabled=false;}});
+  $('#refresh-records').addEventListener('click',()=>{enrichmentAttempts.clear();void loadRecords();});$('#migration-import').addEventListener('click',importRecords);$('#migration-dismiss').addEventListener('click',()=>{$('#migration-banner').hidden=true;pendingImport=[];});
+  $('#application-form').addEventListener('submit',saveApplication);$('#company-name').addEventListener('input',companyChanged);$('#application-method').addEventListener('change',()=>{renderPreview();if($('#application-method').value==='官网'&&key($('#company-name').value).length>=2)void findCompany($('#company-name').value.trim(),{persist:false});});
+  $('#status-company-search').addEventListener('input',renderStatus);$('#summary-search').addEventListener('input',renderSummary);$('#summary-status-filter').addEventListener('change',renderSummary);$('#summary-application-filter').addEventListener('change',renderSummary);$('#clear-filters').addEventListener('click',()=>{$('#summary-search').value='';$('#summary-status-filter').value='';$('#summary-application-filter').value='';renderSummary();});
+  $('#edit-form').addEventListener('submit',saveEdit);$('#edit-company').addEventListener('input',()=>{$('#edit-website-hint').textContent=key($('#edit-company').value)!==key(editingOriginal?.company)?'公司变更后，未修改的旧链接会自动重新匹配。':'手动填写的链接优先保留。';});$('#confirm-delete').addEventListener('click',deleteRecord);
+  $('#discovery-form').addEventListener('submit',discover);$('#discovery-company').addEventListener('input',()=>{discoverySequence++;$('#discovery-submit').disabled=false;$('#discovery-result').innerHTML='';discoveryCompany=$('#discovery-company').value.trim();});$('#website-form').addEventListener('submit',event=>{event.preventDefault();void chooseWebsite($('#manual-website').value);});
+  updateAuthMode();renderProfile();renderAll();renderPreview();authScreen(true);
+  if(client){client.auth.onAuthStateChange((event,session)=>{setTimeout(()=>void handleSession(session,event),0);});client.auth.getSession().then(({data,error})=>{if(error){setMessage('#auth-message',errorText(error));return;}void handleSession(data.session,'INITIAL_SESSION');}).catch(error=>setMessage('#auth-message',errorText(error)));}else setMessage('#auth-message','登录服务未能加载，请检查网络后刷新页面。');
+})();
+</script>
 </body>
 </html>
