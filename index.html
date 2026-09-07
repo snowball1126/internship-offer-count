@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="light" />
-  <title>求职投递台账 · 本地版</title>
+  <title>求职投递台账 · 云端版</title>
   <style>
     :root {
       --bg: #f2f5f9;
@@ -274,6 +274,83 @@
       background: var(--teal);
       box-shadow: 0 0 0 4px rgba(21, 155, 138, 0.12);
     }
+
+    .auth-screen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 28px 18px;
+      background:
+        radial-gradient(circle at 14% 12%, rgba(63, 110, 232, 0.11), transparent 28%),
+        radial-gradient(circle at 85% 86%, rgba(21, 155, 138, 0.1), transparent 26%),
+        var(--bg);
+    }
+
+    .auth-shell { width: min(100%, 420px); }
+
+    .auth-brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin: 0 auto 17px;
+      width: fit-content;
+    }
+
+    .auth-brand .brand-mark { box-shadow: 8px 8px 0 rgba(21, 38, 65, 0.08); }
+    .auth-brand-copy strong { display: block; color: var(--ink-strong); font-size: 16px; font-weight: 780; }
+    .auth-brand-copy span { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
+
+    .auth-card {
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--surface);
+      box-shadow: 0 22px 55px rgba(22, 39, 70, 0.11);
+    }
+
+    .auth-card h1 { margin: 0; color: var(--ink-strong); font-size: 22px; font-weight: 780; letter-spacing: -0.035em; }
+    .auth-card > p { margin: 7px 0 22px; color: var(--muted); font-size: 12px; }
+    .auth-form { display: grid; gap: 15px; }
+    .auth-form .field-label { margin-bottom: 6px; }
+    .auth-submit { width: 100%; margin-top: 3px; }
+    .auth-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 17px; }
+    .auth-link { padding: 0; border: 0; background: transparent; color: var(--blue); font-size: 12px; font-weight: 700; }
+    .auth-link:hover { color: var(--blue-dark); text-decoration: underline; }
+    .auth-message { min-height: 18px; margin: 15px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .auth-message.is-error { color: var(--red); }
+    .auth-message.is-success { color: var(--teal); }
+    .auth-footnote { margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--line); color: #8b98ab; font-size: 11px; line-height: 1.6; }
+
+    .account-area { display: flex; align-items: center; justify-content: flex-end; gap: 10px; min-width: 0; }
+    .account-email { max-width: 230px; overflow: hidden; color: var(--muted-strong); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    .sync-badge { display: inline-flex; align-items: center; gap: 7px; padding: 8px 10px; border: 1px solid #dce9e7; border-radius: 999px; background: #f8fffd; color: #37786f; font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .sync-badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 0 4px rgba(21, 155, 138, 0.12); }
+    .sync-badge.is-busy { border-color: #e4e8f6; background: #fafbff; color: var(--blue); }
+    .sync-badge.is-busy::before { background: var(--blue); box-shadow: 0 0 0 4px rgba(63, 110, 232, 0.12); }
+    .sync-badge.is-error { border-color: #f1d5db; background: #fff9fa; color: var(--red); }
+    .sync-badge.is-error::before { background: var(--red); box-shadow: 0 0 0 4px rgba(200, 76, 98, 0.12); }
+    .account-area .text-button { padding: 0 8px; border: 1px solid var(--line-strong); background: #fff; color: var(--muted-strong); }
+    .account-area .text-button:hover { border-color: #b4c0d2; background: var(--surface-soft); color: var(--ink); }
+
+    .migration-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      max-width: 1320px;
+      margin: 0 auto 20px;
+      padding: 13px 16px;
+      border: 1px solid #f0dfb7;
+      border-radius: 12px;
+      background: #fffaf0;
+      color: #775b22;
+    }
+    .migration-copy { min-width: 0; }
+    .migration-copy strong { display: block; font-size: 12px; font-weight: 760; }
+    .migration-copy span { display: block; margin-top: 3px; color: #967b49; font-size: 11px; }
+    .migration-actions { display: flex; flex: 0 0 auto; gap: 8px; }
+    .migration-actions .text-button { padding: 0 9px; border: 1px solid transparent; color: #967b49; }
+    .migration-actions .text-button:hover { border-color: #e7cf9a; background: #fff4db; }
 
     .toast-root {
       position: fixed;
@@ -857,7 +934,9 @@
       .nav-button span:last-child { font-size: 12px; }
       .main-content { padding: 24px 16px 36px; }
       .topbar { margin-bottom: 23px; }
-      .local-badge { padding: 7px 9px; font-size: 11px; }
+      .account-area { gap: 6px; }
+      .account-email { display: none; }
+      .sync-badge { padding: 7px 9px; font-size: 10px; }
       .topbar h1 { font-size: 25px; }
       .page-heading { align-items: flex-start; margin-bottom: 16px; }
       .heading-mark { display: none; }
@@ -883,6 +962,10 @@
       .table-header { align-items: flex-start; }
       .table-meta { align-items: flex-end; flex-direction: column; gap: 1px; }
       .toast-root { right: 16px; bottom: 16px; }
+      .auth-card { padding: 23px 20px; }
+      .migration-banner { align-items: flex-start; flex-direction: column; gap: 11px; }
+      .migration-actions { width: 100%; }
+      .migration-actions .primary-button, .migration-actions .text-button { flex: 1; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -891,7 +974,48 @@
   </style>
 </head>
 <body>
-  <div class="app-shell">
+  <section class="auth-screen" id="auth-screen" aria-labelledby="auth-title">
+    <div class="auth-shell">
+      <div class="auth-brand">
+        <span class="brand-mark" aria-hidden="true">投</span>
+        <div class="auth-brand-copy"><strong>求职投递台账</strong><span>Application Desk · Cloud</span></div>
+      </div>
+      <div class="auth-card">
+        <h1 id="auth-title">登录你的投递台账</h1>
+        <p id="auth-subtitle">登录后，手机和电脑都可以查看同一份记录。</p>
+        <form class="auth-form" id="auth-form" novalidate>
+          <div class="field">
+            <label class="field-label" for="auth-email">邮箱</label>
+            <input class="input" id="auth-email" type="email" autocomplete="email" placeholder="you@example.com" required />
+          </div>
+          <div class="field">
+            <label class="field-label" for="auth-password">密码</label>
+            <input class="input" id="auth-password" type="password" autocomplete="current-password" minlength="6" placeholder="至少 6 位" required />
+          </div>
+          <button class="primary-button auth-submit" id="auth-submit" type="submit">登录</button>
+        </form>
+        <form class="auth-form" id="recovery-form" hidden novalidate>
+          <div class="field">
+            <label class="field-label" for="recovery-password">新密码</label>
+            <input class="input" id="recovery-password" type="password" autocomplete="new-password" minlength="6" placeholder="至少 6 位" required />
+          </div>
+          <div class="field">
+            <label class="field-label" for="recovery-confirm">确认新密码</label>
+            <input class="input" id="recovery-confirm" type="password" autocomplete="new-password" minlength="6" placeholder="再次输入新密码" required />
+          </div>
+          <button class="primary-button auth-submit" id="recovery-submit" type="submit">更新密码</button>
+        </form>
+        <div class="auth-actions">
+          <button class="auth-link" id="auth-mode-toggle" type="button">还没有账号？注册</button>
+          <button class="auth-link" id="auth-reset" type="button">忘记密码</button>
+        </div>
+        <p class="auth-message" id="auth-message" aria-live="polite"></p>
+        <div class="auth-footnote">数据按账号隔离保存到云端。网页只使用公开的项目连接信息，不会把密码写入投递记录。</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="app-shell" id="app-shell" hidden>
     <aside class="sidebar" aria-label="主导航">
       <div class="brand" aria-label="求职投递台账">
         <span class="brand-mark" aria-hidden="true">C</span>
@@ -915,8 +1039,8 @@
       </nav>
 
       <div class="sidebar-footer">
-        <div class="privacy-note"><span class="privacy-dot" aria-hidden="true"></span>投递记录保存在本机浏览器</div>
-        <div>无需账号 · 查询校招网页时联网 · V1.3</div>
+        <div class="privacy-note"><span class="privacy-dot" aria-hidden="true"></span>投递记录按账号云端同步</div>
+        <div>手机、电脑均可登录 · 查询校招网页时联网 · V1.4</div>
       </div>
     </aside>
 
@@ -926,10 +1050,19 @@
           <span class="eyebrow" id="page-eyebrow">APPLICATION DESK / 01</span>
           <h1 id="page-title">记录一次新的投递</h1>
         </div>
-        <div class="local-badge">记录本地保存</div>
+        <div class="account-area">
+          <span class="sync-badge" id="sync-badge">云端同步</span>
+          <span class="account-email" id="account-email"></span>
+          <button class="text-button" id="signout-button" type="button">退出</button>
+        </div>
       </header>
 
       <div class="toast-root" id="toast-root" aria-live="polite" aria-atomic="true"></div>
+
+      <div class="migration-banner" id="migration-banner" hidden>
+        <div class="migration-copy"><strong>发现这台设备上的旧记录</strong><span>可以把本机旧数据导入当前账号，之后手机和电脑都能看到。</span></div>
+        <div class="migration-actions"><button class="primary-button" id="migration-import" type="button">导入本机记录</button><button class="text-button" id="migration-dismiss" type="button">暂不导入</button></div>
+      </div>
 
       <section class="view" id="view-stats">
         <div class="page-heading">
@@ -1121,10 +1254,18 @@
     </main>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/dist/umd/supabase.min.js" integrity="sha384-EyR2P0dlmjnEGcm9xcjdAn0VedZpRHEwDLP9oSS6wYMvzHBHkUrvgonveazJ/sSx" crossorigin="anonymous"></script>
   <script>
     (() => {
       "use strict";
 
+      const SUPABASE_URL = "https://qklxxwsmhdcxqgytlaru.supabase.co";
+      const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_egOIdrI7qRKK9o2oKkpLBg_S7Nw0RDA";
+      const supabaseClient = window.supabase && !SUPABASE_PUBLISHABLE_KEY.includes("__")
+        ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+        })
+        : null;
       const STORAGE_KEY = "local-career-application-ledger-v1";
       const CAMPUS_WEBSITE_CACHE_KEY = "local-career-application-campus-website-cache-v1";
       const CAMPUS_WEBSITE_CACHE_TTL = 24 * 60 * 60 * 1000;
@@ -1137,12 +1278,18 @@
         summary: { eyebrow: "APPLICATION DESK / 03", title: "查看全部记录" }
       };
 
-      let records = loadRecords();
+      let records = [];
       let campusWebsiteCache = loadCampusWebsiteCache();
       const campusWebsiteRequests = new Map();
       let currentView = "stats";
       let editingId = null;
       let toastTimer = null;
+      let currentUser = null;
+      let cloudReady = false;
+      let pendingMigrationRecords = [];
+      let authMode = "login";
+      let recoveryMode = false;
+      let sessionSequence = 0;
 
       const $ = (selector, root = document) => root.querySelector(selector);
       const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -1199,9 +1346,242 @@
         return cached;
       }
 
-      function persist() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+      function persist() { renderAll(); }
+
+      function getAuthRedirectUrl() {
+        return window.location.protocol === "http:" || window.location.protocol === "https:"
+          ? `${window.location.origin}${window.location.pathname}`
+          : "https://snowball1126.github.io/internship-offer-count/";
+      }
+
+      function setSyncState(label, state = "ready") {
+        const badge = $("#sync-badge");
+        if (!badge) return;
+        badge.textContent = label;
+        badge.classList.toggle("is-busy", state === "busy");
+        badge.classList.toggle("is-error", state === "error");
+      }
+
+      function setAuthMessage(message, type = "") {
+        const root = $("#auth-message");
+        root.textContent = message;
+        root.classList.toggle("is-error", type === "error");
+        root.classList.toggle("is-success", type === "success");
+      }
+
+      function updateAuthMode() {
+        const signUp = authMode === "signup";
+        $("#auth-form").hidden = recoveryMode;
+        $("#recovery-form").hidden = !recoveryMode;
+        $("#auth-mode-toggle").hidden = recoveryMode;
+        $("#auth-reset").hidden = signUp || recoveryMode;
+        if (recoveryMode) {
+          $("#auth-title").textContent = "设置新密码";
+          $("#auth-subtitle").textContent = "设置完成后就可以继续使用投递台账。";
+          return;
+        }
+        $("#auth-title").textContent = signUp ? "创建你的投递台账" : "登录你的投递台账";
+        $("#auth-subtitle").textContent = signUp ? "创建后即可在手机和电脑同步管理投递记录。" : "登录后，手机和电脑都可以查看同一份记录。";
+        $("#auth-submit").textContent = signUp ? "创建账号" : "登录";
+        $("#auth-mode-toggle").textContent = signUp ? "已有账号？登录" : "还没有账号？注册";
+        $("#auth-password").setAttribute("autocomplete", signUp ? "new-password" : "current-password");
+        setAuthMessage("");
+      }
+
+      function showAuthScreen(visible) {
+        $("#auth-screen").hidden = !visible;
+        $("#app-shell").hidden = visible;
+      }
+
+      function mapCloudRecord(item) {
+        const appliedAt = Date.parse(item.applied_at) || Date.now();
+        return {
+          id: String(item.id),
+          company: String(item.company || "").trim(),
+          title: String(item.title || "").trim(),
+          website: item.website_source === "manual" && isValidWebsite(item.website) ? normalizeWebsite(item.website) : "",
+          websiteSource: item.website_source === "manual" ? "manual" : "",
+          applicationMethod: APPLICATION_METHOD_OPTIONS.includes(item.application_method) ? item.application_method : "其他",
+          status: STATUS_OPTIONS.includes(item.status) ? item.status : "已投递",
+          appliedAt
+        };
+      }
+
+      function toCloudRecord(record, userId = currentUser?.id) {
+        return {
+          id: record.id,
+          user_id: userId,
+          company: record.company,
+          title: record.title,
+          application_method: record.applicationMethod,
+          status: record.status,
+          website: record.website || "",
+          website_source: record.websiteSource || "",
+          applied_at: new Date(record.appliedAt).toISOString(),
+          updated_at: new Date().toISOString()
+        };
+      }
+
+      async function loadCloudRecords() {
+        if (!supabaseClient || !currentUser) return;
+        const requestSequence = ++sessionSequence;
+        cloudReady = false;
+        setSyncState("正在同步…", "busy");
+        const { data, error } = await supabaseClient.from("applications").select("*").order("applied_at", { ascending: false });
+        if (requestSequence !== sessionSequence) return;
+        if (error) {
+          records = [];
+          setSyncState("同步失败", "error");
+          showToast(`云端读取失败：${error.message || "请检查数据库表是否已创建"}`, "error");
+          renderAll();
+          return;
+        }
+        records = Array.isArray(data) ? data.map(mapCloudRecord).filter((record) => record.company && record.title) : [];
+        cloudReady = true;
+        setSyncState("云端同步");
+        const localRecords = loadRecords();
+        pendingMigrationRecords = records.length === 0 ? localRecords : [];
+        $("#migration-banner").hidden = !pendingMigrationRecords.length;
         renderAll();
+      }
+
+      async function handleSession(session, eventName = "") {
+        const requestSequence = ++sessionSequence;
+        currentUser = session?.user || null;
+        if (eventName === "PASSWORD_RECOVERY") {
+          recoveryMode = true;
+          updateAuthMode();
+          showAuthScreen(true);
+          return;
+        }
+        if (!currentUser) {
+          recoveryMode = false;
+          updateAuthMode();
+          cloudReady = false;
+          records = [];
+          pendingMigrationRecords = [];
+          $("#migration-banner").hidden = true;
+          $("#account-email").textContent = "";
+          setSyncState("等待登录");
+          showAuthScreen(true);
+          renderAll();
+          return;
+        }
+        recoveryMode = false;
+        updateAuthMode();
+        $("#account-email").textContent = currentUser.email || "已登录";
+        showAuthScreen(false);
+        if (requestSequence === sessionSequence) await loadCloudRecords();
+      }
+
+      async function submitAuth(event) {
+        event.preventDefault();
+        if (!supabaseClient) {
+          setAuthMessage("云端连接尚未配置完成，请稍后再试。", "error");
+          return;
+        }
+        const email = $("#auth-email").value.trim();
+        const password = $("#auth-password").value;
+        if (!email || !/^\S+@\S+\.\S+$/.test(email)) { setAuthMessage("请输入有效的邮箱地址。", "error"); return; }
+        if (password.length < 6) { setAuthMessage("密码至少需要 6 位。", "error"); return; }
+        const submitButton = $("#auth-submit");
+        submitButton.disabled = true;
+        submitButton.textContent = authMode === "signup" ? "创建中…" : "登录中…";
+        const result = authMode === "signup"
+          ? await supabaseClient.auth.signUp({ email, password })
+          : await supabaseClient.auth.signInWithPassword({ email, password });
+        submitButton.disabled = false;
+        submitButton.textContent = authMode === "signup" ? "创建账号" : "登录";
+        if (result.error) { setAuthMessage(result.error.message || "操作失败，请稍后再试。", "error"); return; }
+        if (authMode === "signup" && !result.data.session) {
+          setAuthMessage("账号已创建，请先查收验证邮件，再回来登录。", "success");
+          return;
+        }
+        setAuthMessage("登录成功，正在同步…", "success");
+      }
+
+      async function resetPassword() {
+        if (!supabaseClient) { setAuthMessage("云端连接尚未配置完成，请稍后再试。", "error"); return; }
+        const email = $("#auth-email").value.trim();
+        if (!email || !/^\S+@\S+\.\S+$/.test(email)) { setAuthMessage("请先输入注册邮箱。", "error"); return; }
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: getAuthRedirectUrl() });
+        if (error) { setAuthMessage(error.message || "发送失败，请稍后再试。", "error"); return; }
+        setAuthMessage("重置密码邮件已发送，请检查邮箱。", "success");
+      }
+
+      async function submitRecovery(event) {
+        event.preventDefault();
+        const password = $("#recovery-password").value;
+        const confirm = $("#recovery-confirm").value;
+        if (password.length < 6) { setAuthMessage("新密码至少需要 6 位。", "error"); return; }
+        if (password !== confirm) { setAuthMessage("两次输入的密码不一致。", "error"); return; }
+        const button = $("#recovery-submit");
+        button.disabled = true;
+        const { error } = await supabaseClient.auth.updateUser({ password });
+        button.disabled = false;
+        if (error) { setAuthMessage(error.message || "更新失败，请重新打开邮件链接。", "error"); return; }
+        recoveryMode = false;
+        $("#recovery-form").reset();
+        setAuthMessage("密码已更新，正在打开台账…", "success");
+        const { data } = await supabaseClient.auth.getSession();
+        await handleSession(data.session);
+      }
+
+      async function importLocalRecords() {
+        if (!supabaseClient || !currentUser || !cloudReady || !pendingMigrationRecords.length) return;
+        const imported = pendingMigrationRecords.map((record) => ({ ...record, id: makeId() }));
+        setSyncState("导入中…", "busy");
+        const { data, error } = await supabaseClient.from("applications").insert(imported.map((record) => toCloudRecord(record))).select("*");
+        if (error) {
+          setSyncState("同步失败", "error");
+          showToast(`导入失败：${error.message || "请稍后再试"}`, "error");
+          return;
+        }
+        records = Array.isArray(data) ? [...data.map(mapCloudRecord), ...records] : [...imported, ...records];
+        pendingMigrationRecords = [];
+        $("#migration-banner").hidden = true;
+        setSyncState("云端同步");
+        renderAll();
+        showToast(`已导入 ${imported.length} 条本机记录`);
+      }
+
+      async function createCloudRecords(newRecords) {
+        if (!supabaseClient || !currentUser || !cloudReady) { showToast("请先登录后再保存记录", "error"); return false; }
+        setSyncState("保存中…", "busy");
+        const { error } = await supabaseClient.from("applications").insert(newRecords.map((record) => toCloudRecord(record)));
+        if (error) {
+          setSyncState("同步失败", "error");
+          showToast(`保存失败：${error.message || "请稍后再试"}`, "error");
+          return false;
+        }
+        setSyncState("云端同步");
+        return true;
+      }
+
+      async function updateCloudRecord(record) {
+        if (!supabaseClient || !currentUser || !cloudReady) { showToast("当前还没有连接到云端", "error"); return false; }
+        setSyncState("保存中…", "busy");
+        const { error } = await supabaseClient.from("applications").update(toCloudRecord(record)).eq("id", record.id).eq("user_id", currentUser.id);
+        if (error) {
+          setSyncState("同步失败", "error");
+          showToast(`保存失败：${error.message || "请稍后再试"}`, "error");
+          return false;
+        }
+        setSyncState("云端同步");
+        return true;
+      }
+
+      async function deleteCloudRecord(id) {
+        if (!supabaseClient || !currentUser || !cloudReady) { showToast("当前还没有连接到云端", "error"); return false; }
+        setSyncState("删除中…", "busy");
+        const { error } = await supabaseClient.from("applications").delete().eq("id", id).eq("user_id", currentUser.id);
+        if (error) {
+          setSyncState("同步失败", "error");
+          showToast(`删除失败：${error.message || "请稍后再试"}`, "error");
+          return false;
+        }
+        setSyncState("云端同步");
+        return true;
       }
 
       function escapeHTML(value) {
@@ -1539,7 +1919,7 @@
         if (view === "status") renderStatusResults();
       }
 
-      function saveNewRecords(event) {
+      async function saveNewRecords(event) {
         event.preventDefault();
         const companyInput = $("#company-name");
         const jobsInput = $("#job-titles");
@@ -1558,21 +1938,24 @@
 
         const appliedAt = Date.now();
         const newRecords = jobs.map((title) => ({ id: makeId(), company, title, website: "", websiteSource: "", applicationMethod, status, appliedAt }));
+        if (!(await createCloudRecords(newRecords))) return;
         records = [...newRecords, ...records];
         persist();
         event.target.reset();
         showToast(`已保存 ${newRecords.length} 个岗位的投递记录`);
       }
 
-      function updateStatus(id, status) {
+      async function updateStatus(id, status) {
         const record = records.find((item) => item.id === id);
         if (!record || !STATUS_OPTIONS.includes(status)) return;
+        const previousStatus = record.status;
         record.status = status;
+        if (!(await updateCloudRecord(record))) { record.status = previousStatus; return; }
         persist();
         showToast(`已更新「${record.title}」为「${status}」`);
       }
 
-      function saveInlineEdit(id, row) {
+      async function saveInlineEdit(id, row) {
         const record = records.find((item) => item.id === id);
         if (!record) return;
         const company = row.querySelector('[data-field="company"]').value.trim();
@@ -1584,18 +1967,20 @@
         if (!company || !title) { showToast("公司名称和岗位名称不能为空", "error"); return; }
         if (!APPLICATION_METHOD_OPTIONS.includes(applicationMethod) || !STATUS_OPTIONS.includes(status)) { showToast("请检查投递方式和当前状态", "error"); return; }
         if (website && !isValidWebsite(website)) { showToast("请输入有效的校招网址", "error"); websiteInput.focus(); return; }
+        const previousRecord = { ...record };
         record.company = company;
         record.title = title;
         record.website = applicationMethod === "官网" && website ? normalizeWebsite(website) : "";
         record.websiteSource = record.website ? "manual" : "";
         record.applicationMethod = applicationMethod;
         record.status = status;
+        if (!(await updateCloudRecord(record))) { Object.assign(record, previousRecord); return; }
         editingId = null;
         persist();
         showToast("已保存修改");
       }
 
-      function handleAction(event) {
+      async function handleAction(event) {
         const target = event.target.closest("[data-action]");
         if (!target) return;
         const action = target.dataset.action;
@@ -1611,6 +1996,7 @@
           if (!record) return;
           const confirmed = window.confirm(`确定删除“${record.company} - ${record.title}”这条投递记录吗？此操作无法撤销。`);
           if (!confirmed) return;
+          if (!(await deleteCloudRecord(id))) return;
           records = records.filter((item) => item.id !== id);
           editingId = null;
           persist();
@@ -1630,9 +2016,35 @@
         $("#summary-application-filter").value = "";
         renderSummary();
       });
+      $("#auth-form").addEventListener("submit", submitAuth);
+      $("#recovery-form").addEventListener("submit", submitRecovery);
+      $("#auth-mode-toggle").addEventListener("click", () => {
+        authMode = authMode === "login" ? "signup" : "login";
+        updateAuthMode();
+      });
+      $("#auth-reset").addEventListener("click", resetPassword);
+      $("#signout-button").addEventListener("click", async () => {
+        if (!supabaseClient) return;
+        await supabaseClient.auth.signOut();
+      });
+      $("#migration-import").addEventListener("click", importLocalRecords);
+      $("#migration-dismiss").addEventListener("click", () => {
+        pendingMigrationRecords = [];
+        $("#migration-banner").hidden = true;
+      });
       document.addEventListener("click", handleAction);
 
-      renderAll();
+      updateAuthMode();
+      showAuthScreen(true);
+      if (!supabaseClient) {
+        setAuthMessage("云端连接尚未配置完成。", "error");
+        setSyncState("未配置", "error");
+      } else {
+        supabaseClient.auth.onAuthStateChange((eventName, session) => {
+          window.setTimeout(() => handleSession(session, eventName), 0);
+        });
+        supabaseClient.auth.getSession().then(({ data }) => handleSession(data.session));
+      }
     })();
   </script>
 </body>
